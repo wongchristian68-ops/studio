@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "A vibrant restaurant interior",
+      "imageUrl": "https://images.unsplash.com/photo-1613274554329-70f997f5789f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZXN0YXVyYW50JTIwaW50ZXJpb3J8ZW58MHx8fHwxNzYzMzk5ODYxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "restaurant interior"
+    },
+    {
+      "id": "loyalty-card",
+      "description": "A close-up of a loyalty card being stamped.",
+      "imageUrl": "https://images.unsplash.com/photo-1599202875854-23b7cd490ff4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsb3lhbHR5JTIwY2FyZHxlbnwwfHx8fDE3NjM0MTg1MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "loyalty card"
+    },
+    {
+      "id": "referral-program",
+      "description": "Friends happily dining together.",
+      "imageUrl": "https://images.unsplash.com/photo-1658893654029-75877017fb1f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmcmllbmRzJTIwZGluaW5nfGVufDB8fHx8MTc2MzMzMTE1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "friends dining"
+    },
+    {
+      "id": "google-reviews",
+      "description": "A person leaving a review on a smartphone.",
+      "imageUrl": "https://images.unsplash.com/photo-1642724978770-e27d781662d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwaG9uZSUyMHJldmlld3xlbnwwfHx8fDE3NjM0MTg1MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "phone review"
+    }
+  ]
 }
