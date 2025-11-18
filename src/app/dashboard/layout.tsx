@@ -10,7 +10,9 @@ import {
   Star,
   Settings,
   QrCode,
-  UtensilsCrossed
+  UtensilsCrossed,
+  UserPlus,
+  Gift
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,10 +117,44 @@ export default function DashboardLayout({
             <div className="flex-1">
               <h1 className="text-lg font-semibold font-headline">{title}</h1>
             </div>
-            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Activer/Désactiver les notifications</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="ml-auto h-8 w-8 relative">
+                  <Bell className="h-4 w-4" />
+                  <span className="sr-only">Activer/Désactiver les notifications</span>
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">3</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="flex items-start gap-2">
+                  <UserPlus className="mt-1"/> 
+                  <div>
+                    <p className="font-semibold">Nouveau client</p>
+                    <p className="text-xs text-muted-foreground">Alexandre Martin vient de s'inscrire.</p>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-start gap-2">
+                  <Star className="mt-1 text-yellow-500 fill-yellow-500"/> 
+                  <div>
+                    <p className="font-semibold">Nouvel avis</p>
+                    <p className="text-xs text-muted-foreground">Sophie Dubois a laissé un avis de 5 étoiles.</p>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-start gap-2">
+                  <Gift className="mt-1"/> 
+                  <div>
+                    <p className="font-semibold">Récompense réclamée</p>
+                    <p className="text-xs text-muted-foreground">Un client a réclamé sa récompense.</p>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                 <DropdownMenuItem className="text-center text-sm text-muted-foreground">
+                    Marquer comme lu
+                 </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="icon" className="rounded-full">
@@ -139,7 +175,7 @@ export default function DashboardLayout({
                   <Link href="/dashboard/settings">Paramètres</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="mailto:support@restoconnect.com">Support</Link>
+                  <a href="mailto:support@restoconnect.com">Support</a>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
