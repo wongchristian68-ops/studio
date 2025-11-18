@@ -4,6 +4,10 @@ import { recentReviews } from "@/lib/data";
 import { Star, StarHalf } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "../ui/scroll-area";
+import { Button } from "../ui/button";
+import { ReviewResponseDialog } from "./review-response-dialog";
+import type { Review } from "@/lib/types";
+import { useState } from "react";
 
 const renderStars = (rating: number) => {
   const fullStars = Math.floor(rating);
@@ -22,36 +26,49 @@ const renderStars = (rating: number) => {
   );
 };
 
-
 export function RecentReviews() {
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Avis Récents</CardTitle>
-        <CardDescription>Derniers commentaires des clients de Google.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[390px]">
-          <div className="space-y-4 pr-4">
-            {recentReviews.map((review) => (
-              <div key={review.id} className={cn("flex items-start gap-4 p-3 rounded-lg border", review.rating < 3 && "bg-destructive/10 border-destructive/20")}>
-                <Avatar className="mt-1">
-                  <AvatarImage src={`https://picsum.photos/seed/${review.customerName.replace(' ', '')}/40/40`} />
-                  <AvatarFallback>{review.customerName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold">{review.customerName}</p>
-                    {renderStars(review.rating)}
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Avis Récents</CardTitle>
+          <CardDescription>Derniers commentaires des clients de Google.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[390px]">
+            <div className="space-y-4 pr-4">
+              {recentReviews.map((review) => (
+                <div key={review.id} className={cn("flex flex-col gap-4 p-3 rounded-lg border", review.rating < 3 && "bg-destructive/10 border-destructive/20")}>
+                  <div className="flex items-start gap-4">
+                    <Avatar className="mt-1">
+                      <AvatarImage src={`https://picsum.photos/seed/${review.customerName.replace(' ', '')}/40/40`} />
+                      <AvatarFallback>{review.customerName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="grid gap-1 flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-semibold">{review.customerName}</p>
+                        {renderStars(review.rating)}
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-snug">{review.comment}</p>
+                      <p className="text-xs text-muted-foreground">{review.date}</p>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-snug">{review.comment}</p>
-                  <p className="text-xs text-muted-foreground">{review.date}</p>
+                   <Button variant="outline" size="sm" className="self-end" onClick={() => setSelectedReview(review)}>
+                    Répondre
+                  </Button>
                 </div>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+      <ReviewResponseDialog 
+        review={selectedReview}
+        isOpen={!!selectedReview}
+        onOpenChange={(isOpen) => !isOpen && setSelectedReview(null)}
+      />
+    </>
   );
 }
