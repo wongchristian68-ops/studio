@@ -28,11 +28,19 @@ export default function SettingsPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [customerPhone, setCustomerPhone] = useState('');
+  const [stampCount, setStampCount] = useState(10);
+  const [rewardDescription, setRewardDescription] = useState('Une boisson chaude offerte');
 
   useEffect(() => {
     const savedLogo = localStorage.getItem("loyaltyCardLogo");
     if (savedLogo) {
       setLogoPreview(savedLogo);
+    }
+    const savedLoyaltySettings = localStorage.getItem("loyaltySettings");
+    if (savedLoyaltySettings) {
+        const { stampCount, rewardDescription } = JSON.parse(savedLoyaltySettings);
+        setStampCount(stampCount);
+        setRewardDescription(rewardDescription);
     }
   }, []);
 
@@ -57,6 +65,18 @@ export default function SettingsPage() {
       });
     }
   };
+
+  const handleLoyaltySettingsSave = () => {
+    const loyaltySettings = {
+        stampCount,
+        rewardDescription,
+    };
+    localStorage.setItem("loyaltySettings", JSON.stringify(loyaltySettings));
+    toast({
+        title: "Paramètres de fidélité sauvegardés !",
+        description: "Votre programme de fidélité a été mis à jour.",
+    });
+  }
 
   const handleDeleteCustomer = () => {
     if (!customerPhone) {
@@ -100,6 +120,39 @@ export default function SettingsPage() {
   
   return (
     <div className="grid gap-6">
+       <Card>
+        <CardHeader>
+            <CardTitle>Programme de fidélité</CardTitle>
+            <CardDescription>
+                Définissez le nombre de tampons nécessaires pour obtenir une récompense et ce qu'est la récompense.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="stamp-count">Nombre de tampons pour une récompense</Label>
+                <Input 
+                    id="stamp-count" 
+                    type="number" 
+                    value={stampCount}
+                    onChange={(e) => setStampCount(parseInt(e.target.value))}
+                    min="1"
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="reward-description">Description de la récompense</Label>
+                <Input 
+                    id="reward-description" 
+                    type="text"
+                    placeholder="Ex: Une boisson chaude offerte"
+                    value={rewardDescription}
+                    onChange={(e) => setRewardDescription(e.target.value)}
+                />
+            </div>
+        </CardContent>
+        <CardFooter>
+            <Button onClick={handleLoyaltySettingsSave}>Sauvegarder les paramètres de fidélité</Button>
+        </CardFooter>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Personnalisation de la carte de fidélité</CardTitle>

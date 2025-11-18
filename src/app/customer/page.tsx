@@ -7,7 +7,7 @@ import { RewardsSection } from "@/components/customer/rewards-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Star } from "lucide-react";
+import { Star, Gift } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const history: any[] = [];
@@ -18,13 +18,26 @@ interface LoggedInUser {
     role: string;
 }
 
+interface LoyaltySettings {
+    stampCount: number;
+    rewardDescription: string;
+}
+
 export default function CustomerPage() {
     const [user, setUser] = useState<LoggedInUser | null>(null);
+    const [loyaltySettings, setLoyaltySettings] = useState<LoyaltySettings | null>(null);
 
     useEffect(() => {
         const storedUser = sessionStorage.getItem('loggedInUser');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
+        }
+        
+        const storedLoyaltySettings = localStorage.getItem("loyaltySettings");
+        if (storedLoyaltySettings) {
+            setLoyaltySettings(JSON.parse(storedLoyaltySettings));
+        } else {
+            setLoyaltySettings({ stampCount: 10, rewardDescription: 'Une boisson chaude offerte' });
         }
     }, []);
 
@@ -41,6 +54,21 @@ export default function CustomerPage() {
                     </CardHeader>
                 </Card>
                 <LoyaltyStatus />
+                {loyaltySettings && (
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Gift className="h-5 w-5 text-primary"/>
+                                Prochaine Récompense
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-lg font-medium text-center p-4 bg-secondary rounded-lg">
+                                {loyaltySettings.rewardDescription}
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
                 <Card>
                     <CardHeader>
                         <CardTitle>Historique</CardTitle>
