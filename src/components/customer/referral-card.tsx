@@ -150,7 +150,7 @@ export function ReferralCard() {
                          <div className="flex-grow p-2 border rounded-md bg-muted text-center font-mono text-lg tracking-widest">
                             {referralCode}
                         </div>
-                        <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copier le code de parrainage" disabled={referralCode === '...'}>
+                        <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copier le code de parrainage" disabled={referralCode === '...' || referralCode === 'N/A'}>
                             <Copy className="h-4 w-4" />
                         </Button>
                     </div>
