@@ -10,13 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const history = [
-    { id: 1, date: "2024-07-20", description: "Tampon gagné", points: "+1" },
-    { id: 2, date: "2024-07-15", description: "Récompense réclamée : Café gratuit", points: "-10" },
-    { id: 3, date: "2024-07-12", description: "Tampon gagné", points: "+1" },
-    { id: 4, date: "2024-07-11", description: "Bonus de parrainage", points: "+5" },
-    { id: 5, date: "2024-07-10", description: "Tampon gagné", points: "+1" },
-];
+const history: any[] = [];
 
 interface LoggedInUser {
     name: string;
@@ -53,24 +47,28 @@ export default function CustomerPage() {
                         <CardDescription>Votre activité de fidélité récente.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead className="text-right">Points</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {history.map(item => (
-                                    <TableRow key={item.id}>
-                                        <TableCell>{item.date}</TableCell>
-                                        <TableCell>{item.description}</TableCell>
-                                        <TableCell className="text-right font-medium">{item.points}</TableCell>
+                        {history.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Description</TableHead>
+                                        <TableHead className="text-right">Points</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {history.map(item => (
+                                        <TableRow key={item.id}>
+                                            <TableCell>{item.date}</TableCell>
+                                            <TableCell>{item.description}</TableCell>
+                                            <TableCell className="text-right font-medium">{item.points}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <p className="text-muted-foreground text-center">Aucune activité pour le moment.</p>
+                        )}
                     </CardContent>
                 </Card>
             </div>
