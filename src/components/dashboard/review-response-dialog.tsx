@@ -48,7 +48,7 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
       setResponse(generatedText);
     } catch (error: any) {
       console.error(error);
-      const errorMessage = error.message && error.message.includes('overloaded')
+      const errorMessage = error.message && (error.message.includes('overloaded') || error.message.includes('503'))
         ? 'Le service est actuellement surchargé. Veuillez réessayer dans quelques instants.'
         : 'Impossible de générer une réponse pour le moment.';
 
