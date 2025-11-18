@@ -38,10 +38,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
-const notifications = [
-  { type: 'user', content: 'Nouveau client inscrit: Marc D.', time: 'il y a 5 minutes' },
-  { type: 'referral', content: 'Pauline A. a parrainé un nouvel utilisateur.', time: 'il y a 2 heures' },
-];
+const notifications: any[] = [];
 
 export default function DashboardLayout({
   children,
