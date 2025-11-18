@@ -8,11 +8,26 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 export default function SettingsPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [customerPhone, setCustomerPhone] = useState('');
 
   useEffect(() => {
     const savedLogo = localStorage.getItem("loyaltyCardLogo");
@@ -33,7 +48,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSave = () => {
+  const handleLogoSave = () => {
     if (logoPreview) {
       localStorage.setItem("loyaltyCardLogo", logoPreview);
       toast({
@@ -42,22 +57,49 @@ export default function SettingsPage() {
       });
     }
   };
+
+  const handleDeleteCustomer = () => {
+    if (!customerPhone) {
+        toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Veuillez entrer un numéro de téléphone.",
+        });
+        return;
+    }
+    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    const userExists = existingUsers.some((user: any) => user.phone === customerPhone && user.role === 'customer');
+
+    if (userExists) {
+        const updatedUsers = existingUsers.filter((user: any) => !(user.phone === customerPhone && user.role === 'customer'));
+        localStorage.setItem("users", JSON.stringify(updatedUsers));
+        toast({
+            title: "Client supprimé",
+            description: `Le client avec le numéro ${customerPhone} a été supprimé.`,
+        });
+        setCustomerPhone('');
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Client non trouvé",
+            description: "Aucun client trouvé avec ce numéro de téléphone.",
+        });
+    }
+  };
+  
+  const handleDeleteRestaurateur = () => {
+    // In a real app, this would be a more complex process.
+    // For now, we'll just clear the local storage and redirect.
+    localStorage.clear();
+    toast({
+      title: "Compte supprimé",
+      description: "Votre compte a été supprimé avec succès. Vous allez être redirigé.",
+    });
+    router.push('/');
+  };
   
   return (
     <div className="grid gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Paramètres du restaurant</CardTitle>
-          <CardDescription>
-            Gérez les paramètres de votre compte et de votre restaurant.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-24 border-2 border-dashed rounded-lg">
-            <p className="text-muted-foreground">Plus de paramètres bientôt disponibles.</p>
-          </div>
-        </CardContent>
-      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Personnalisation de la carte de fidélité</CardTitle>
@@ -83,8 +125,84 @@ export default function SettingsPage() {
           )}
         </CardContent>
         <CardFooter>
-          <Button onClick={handleSave} disabled={!logoFile}>Sauvegarder les modifications</Button>
+          <Button onClick={handleLogoSave} disabled={!logoFile}>Sauvegarder les modifications</Button>
         </CardFooter>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Gestion des clients (RGPD)</CardTitle>
+          <CardDescription>
+            Supprimez les données d'un client à sa demande. Cette action est irréversible.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="space-y-2">
+                <Label htmlFor="customer-phone">Numéro de téléphone du client</Label>
+                <Input 
+                    id="customer-phone" 
+                    type="tel" 
+                    placeholder="+33 6 12 34 56 78" 
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)} 
+                />
+            </div>
+        </CardContent>
+        <CardFooter>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={!customerPhone}>Supprimer le client</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Cette action est irréversible. Toutes les données du client {customerPhone} seront définitivement supprimées.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteCustomer} className="bg-destructive hover:bg-destructive/90">
+                        Oui, supprimer ce client
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardFooter>
+      </Card>
+
+      <Card className="border-destructive/50">
+        <CardHeader>
+            <CardTitle className="text-destructive">Zone de danger</CardTitle>
+            <CardDescription>
+                Actions irréversibles concernant votre compte.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-between items-center p-4 bg-destructive/5 rounded-lg">
+            <div>
+                <p className="font-semibold">Supprimer votre compte</p>
+                <p className="text-sm text-muted-foreground">Toutes vos données seront définitivement effacées.</p>
+            </div>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Supprimer mon compte</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Cette action est irréversible. Toutes vos données, y compris les données de vos clients, seront définitivement supprimées.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteRestaurateur} className="bg-destructive hover:bg-destructive/90">
+                            Oui, supprimer mon compte
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </CardContent>
       </Card>
     </div>
   );
