@@ -7,8 +7,6 @@
  * - GenerateReviewResponseInput - The Zod schema for the input.
  */
 
-import { ai } from '@/ai/genkit';
-import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 
 const GenerateReviewResponseInputSchema = z.object({
@@ -19,42 +17,19 @@ const GenerateReviewResponseInputSchema = z.object({
 
 export type GenerateReviewResponseInput = z.infer<typeof GenerateReviewResponseInputSchema>;
 
-export async function generateReviewResponse(input: GenerateReviewResponseInput): Promise<string> {
-  return generateReviewResponseFlow(input);
+// This is a mock implementation to simulate the AI response.
+const generateMockResponse = (input: GenerateReviewResponseInput): string => {
+    if (input.rating >= 4) {
+        return `Bonjour ${input.customerName}, un grand merci pour votre retour positif ! Nous sommes ravis que vous ayez apprécié votre expérience. À bientôt !`;
+    }
+    if (input.rating === 3) {
+        return `Bonjour ${input.customerName}, merci d'avoir pris le temps de nous faire part de vos remarques. Nous prenons note de vos commentaires pour nous améliorer.`;
+    }
+    return `Bonjour ${input.customerName}, nous sommes sincèrement désolés d'apprendre que votre expérience n'a pas été à la hauteur de vos attentes. Pourriez-vous nous contacter directement pour que nous puissions en discuter ?`;
 }
 
-const generateReviewResponseFlow = ai.defineFlow(
-  {
-    name: 'generateReviewResponseFlow',
-    inputSchema: GenerateReviewResponseInputSchema,
-    outputSchema: z.string(),
-  },
-  async (input) => {
-    const prompt = `
-      You are the owner of a restaurant and you are responding to a customer review.
-      Your tone should be professional, friendly, and appropriate for the rating given.
-
-      - For positive reviews (4-5 stars), thank the customer warmly and mention something specific from their comment if possible.
-      - For mixed reviews (3 stars), thank them for the feedback, acknowledge any issues raised, and express a desire to improve.
-      - For negative reviews (1-2 stars), apologize sincerely for their bad experience, take their feedback seriously, and offer to make things right. Invite them to contact you directly.
-
-      The response MUST be in French.
-
-      Customer Name: ${input.customerName}
-      Rating: ${input.rating} / 5 stars
-      Review: "${input.comment}"
-
-      Your response:
-    `;
-
-    const llmResponse = await ai.generate({
-      prompt: prompt,
-      model: googleAI('gemini-1.5-flash'),
-      config: {
-        maxOutputTokens: 200,
-      },
-    });
-
-    return llmResponse.text;
-  }
-);
+export async function generateReviewResponse(input: GenerateReviewResponseInput): Promise<string> {
+  // Simulate a short network delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return generateMockResponse(input);
+}
