@@ -12,7 +12,8 @@ import {
   QrCode,
   UtensilsCrossed,
   UserPlus,
-  Gift
+  Gift,
+  ScanLine
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,7 +45,8 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const pageTitles: { [key: string]: string } = {
     '/dashboard': 'Aperçu',
-    '/dashboard/loyalty': 'Programme de fidélité',
+    '/dashboard/scanner': 'Scanner un client',
+    '/dashboard/loyalty-qr': 'Générer QR Code',
     '/dashboard/referrals': 'Parrainages',
     '/dashboard/reviews': 'Avis',
     '/dashboard/settings': 'Paramètres',
@@ -73,10 +75,18 @@ export default function DashboardLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Programme de fidélité" isActive={pathname === '/dashboard/loyalty'}>
-                   <Link href="/dashboard/loyalty">
+                <SidebarMenuButton asChild tooltip="Scanner un client" isActive={pathname === '/dashboard/scanner'}>
+                   <Link href="/dashboard/scanner">
+                    <ScanLine />
+                    <span>Scanner un client</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Générer QR Code" isActive={pathname === '/dashboard/loyalty-qr'}>
+                   <Link href="/dashboard/loyalty-qr">
                     <QrCode />
-                    <span>Programme de fidélité</span>
+                    <span>Générer QR Code</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -31,6 +31,9 @@ export default function SettingsPage() {
   const [stampCount, setStampCount] = useState(10);
   const [rewardDescription, setRewardDescription] = useState('Une boisson chaude offerte');
 
+  const [restaurantName, setRestaurantName] = useState('');
+  const [restaurantAddress, setRestaurantAddress] = useState('');
+
   useEffect(() => {
     const savedLogo = localStorage.getItem("loyaltyCardLogo");
     if (savedLogo) {
@@ -41,6 +44,12 @@ export default function SettingsPage() {
         const { stampCount, rewardDescription } = JSON.parse(savedLoyaltySettings);
         setStampCount(stampCount);
         setRewardDescription(rewardDescription);
+    }
+    const savedRestaurantProfile = localStorage.getItem("restaurantProfile");
+    if (savedRestaurantProfile) {
+        const { name, address } = JSON.parse(savedRestaurantProfile);
+        setRestaurantName(name);
+        setRestaurantAddress(address);
     }
   }, []);
 
@@ -78,6 +87,15 @@ export default function SettingsPage() {
     });
   }
 
+  const handleProfileSave = () => {
+    const profile = { name: restaurantName, address: restaurantAddress };
+    localStorage.setItem("restaurantProfile", JSON.stringify(profile));
+    toast({
+      title: "Profil sauvegardé !",
+      description: "Les informations de votre restaurant ont été mises à jour.",
+    });
+  };
+
   const handleDeleteCustomer = () => {
     if (!customerPhone) {
         toast({
@@ -108,8 +126,6 @@ export default function SettingsPage() {
   };
   
   const handleDeleteRestaurateur = () => {
-    // In a real app, this would be a more complex process.
-    // For now, we'll just clear the local storage and redirect.
     localStorage.clear();
     toast({
       title: "Compte supprimé",
@@ -120,6 +136,40 @@ export default function SettingsPage() {
   
   return (
     <div className="grid gap-6">
+       <Card>
+        <CardHeader>
+          <CardTitle>Profil du Restaurant</CardTitle>
+          <CardDescription>
+            Gérez les informations de base de votre restaurant.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="restaurant-name">Nom du restaurant</Label>
+                <Input 
+                    id="restaurant-name" 
+                    type="text" 
+                    placeholder="Mon Super Restaurant"
+                    value={restaurantName}
+                    onChange={(e) => setRestaurantName(e.target.value)}
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="restaurant-address">Adresse du restaurant (pour les avis Google)</Label>
+                <Input 
+                    id="restaurant-address" 
+                    type="text"
+                    placeholder="123 Rue de la Gourmandise, Paris"
+                    value={restaurantAddress}
+                    onChange={(e) => setRestaurantAddress(e.target.value)}
+                />
+                 <p className="text-sm text-muted-foreground">Utilisée pour rediriger vos clients vers la bonne page d'avis Google.</p>
+            </div>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={handleProfileSave}>Sauvegarder le profil</Button>
+        </CardFooter>
+      </Card>
        <Card>
         <CardHeader>
             <CardTitle>Programme de fidélité</CardTitle>

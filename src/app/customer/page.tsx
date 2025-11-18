@@ -23,9 +23,15 @@ interface LoyaltySettings {
     rewardDescription: string;
 }
 
+interface RestaurantProfile {
+    name: string;
+    address: string;
+}
+
 export default function CustomerPage() {
     const [user, setUser] = useState<LoggedInUser | null>(null);
     const [loyaltySettings, setLoyaltySettings] = useState<LoyaltySettings | null>(null);
+    const [restaurantProfile, setRestaurantProfile] = useState<RestaurantProfile | null>(null);
 
     useEffect(() => {
         const storedUser = sessionStorage.getItem('loggedInUser');
@@ -39,7 +45,22 @@ export default function CustomerPage() {
         } else {
             setLoyaltySettings({ stampCount: 10, rewardDescription: 'Une boisson chaude offerte' });
         }
+
+        const storedProfile = localStorage.getItem("restaurantProfile");
+        if (storedProfile) {
+            setRestaurantProfile(JSON.parse(storedProfile));
+        } else {
+            setRestaurantProfile({ name: "le restaurant", address: "" });
+        }
     }, []);
+
+    const handleReviewClick = () => {
+        if (restaurantProfile && restaurantProfile.name) {
+            const query = encodeURIComponent(`${restaurantProfile.name} ${restaurantProfile.address}`);
+            const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+            window.open(url, '_blank');
+        }
+    }
 
     return (
         <div className="grid gap-8 md:grid-cols-3">
@@ -106,8 +127,8 @@ export default function CustomerPage() {
                         <CardTitle>Vous appréciez votre expérience ?</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center gap-4">
-                        <p className="text-muted-foreground">Aidez-nous en laissant un avis sur Google !</p>
-                        <Button size="lg" className="w-full bg-primary hover:bg-accent text-primary-foreground hover:text-accent-foreground">
+                        <p className="text-muted-foreground">Aidez {restaurantProfile?.name || 'le restaurant'} en laissant un avis sur Google !</p>
+                        <Button size="lg" className="w-full bg-primary hover:bg-accent text-primary-foreground hover:text-accent-foreground" onClick={handleReviewClick}>
                             <Star className="mr-2 h-4 w-4" />
                             Laissez un avis
                         </Button>
