@@ -26,9 +26,9 @@ export function ReferralCard() {
     const [pendingReferralRewards, setPendingReferralRewards] = useState(0);
     
     const fetchUserData = () => {
-        const user = sessionStorage.getItem('loggedInUser');
-        if (user) {
-            const parsedUser = JSON.parse(user);
+        const userStr = sessionStorage.getItem('loggedInUser');
+        if (userStr) {
+            const parsedUser = JSON.parse(userStr);
             setCurrentUser(parsedUser);
             if (parsedUser.referralCode) {
                 setReferralCode(parsedUser.referralCode);
@@ -175,5 +175,3 @@ export function ReferralCard() {
         </div>
     );
 }
-
-    
