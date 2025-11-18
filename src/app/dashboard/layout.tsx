@@ -87,8 +87,8 @@ export default function DashboardLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Avis">
-                  <Link href="#">
+                <SidebarMenuButton asChild tooltip="Avis" isActive={pathname === '/dashboard/reviews'}>
+                  <Link href="/dashboard/reviews">
                     <Star />
                     <span>Avis</span>
                   </Link>
