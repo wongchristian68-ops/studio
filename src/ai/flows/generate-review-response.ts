@@ -9,7 +9,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { googleAI } from '@genkit-ai/google-genai';
 
 const GenerateReviewResponseInputSchema = z.object({
   customerName: z.string().describe("The name of the customer who left the review."),
@@ -49,7 +48,7 @@ const generateReviewResponseFlow = ai.defineFlow(
 
     const llmResponse = await ai.generate({
       prompt: prompt,
-      model: googleAI.model('gemini-pro'),
+      model: 'gemini-pro',
       config: {
         maxOutputTokens: 200,
       },
