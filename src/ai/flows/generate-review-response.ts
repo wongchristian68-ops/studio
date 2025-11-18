@@ -4,18 +4,12 @@
  * @fileOverview Flow to generate a response to a customer review.
  * 
  * - generateReviewResponse - The main function to call the flow.
- * - GenerateReviewResponseInput - The Zod schema for the input.
  */
 
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
-
-export const GenerateReviewResponseInputSchema = z.object({
-  customerName: z.string().describe('The name of the customer leaving the review.'),
-  rating: z.number().min(1).max(5).describe('The rating the customer gave, from 1 to 5.'),
-  comment: z.string().describe('The comment the customer wrote.'),
-});
-export type GenerateReviewResponseInput = z.infer<typeof GenerateReviewResponseInputSchema>;
+import { GenerateReviewResponseInputSchema } from './types';
+import type { GenerateReviewResponseInput } from './types';
 
 
 const generateReviewResponseFlow = ai.defineFlow(

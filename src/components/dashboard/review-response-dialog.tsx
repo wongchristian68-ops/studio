@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import type { Review } from '@/lib/types';
 import { generateReviewResponse } from '@/ai/flows/generate-review-response';
+import type { GenerateReviewResponseInput } from '@/ai/flows/types';
 import { Loader2 } from 'lucide-react';
 
 interface ReviewResponseDialogProps {
@@ -40,11 +41,12 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
     if (!review) return;
     setIsGenerating(true);
     try {
-        const generatedText = await generateReviewResponse({
+        const input: GenerateReviewResponseInput = {
             customerName: review.customerName,
             rating: review.rating,
             comment: review.comment,
-        });
+        };
+        const generatedText = await generateReviewResponse(input);
         setResponse(generatedText);
     } catch (error) {
         console.error("Failed to generate AI response:", error);
