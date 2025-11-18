@@ -4,7 +4,14 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, QrCode, Gift, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { stats as initialStats, referralActivity } from "@/lib/data";
+import { referralActivity } from "@/lib/data";
+
+const initialStats = {
+  totalClients: 0,
+  stampsValidated: 0,
+  rewardsClaimed: 0,
+  activeReferrals: 0,
+};
 
 export function OverviewStats() {
   const [stats, setStats] = useState(initialStats);
@@ -16,15 +23,13 @@ export function OverviewStats() {
     
     const completedReferrals = referralActivity.filter(r => r.status === 'Complété').length;
 
-    // The other stats are hardcoded in data.ts for now, so we just update the one we can calculate.
-    setStats(prevStats => ({
-      ...prevStats,
+    // For demonstration, we simulate some stats based on the number of clients and referrals.
+    setStats({
       totalClients,
       activeReferrals: completedReferrals,
-      // For demonstration, let's make other stats feel a bit more dynamic
-      stampsValidated: 150 + totalClients * 3,
-      rewardsClaimed: 10 + completedReferrals * 2,
-    }));
+      stampsValidated: totalClients * 5 + completedReferrals * 10, // Example calculation
+      rewardsClaimed: Math.floor(totalClients / 2) + completedReferrals, // Example calculation
+    });
 
   }, []);
 
