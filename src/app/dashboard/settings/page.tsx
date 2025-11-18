@@ -184,7 +184,10 @@ export default function SettingsPage() {
                     id="stamp-count" 
                     type="number" 
                     value={stampCount}
-                    onChange={(e) => setStampCount(parseInt(e.target.value))}
+                    onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        setStampCount(isNaN(value) ? 0 : value);
+                    }}
                     min="1"
                 />
             </div>
