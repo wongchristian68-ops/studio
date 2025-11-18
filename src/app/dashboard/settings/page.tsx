@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import type { Referral } from "@/lib/types";
 
 
 export default function SettingsPage() {
@@ -106,14 +107,29 @@ export default function SettingsPage() {
         return;
     }
     const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    const userExists = existingUsers.some((user: any) => user.phone === customerPhone && user.role === 'customer');
+    const userToDelete = existingUsers.find((user: any) => user.phone === customerPhone && user.role === 'customer');
 
-    if (userExists) {
+    if (userToDelete) {
+        // Delete user account
         const updatedUsers = existingUsers.filter((user: any) => !(user.phone === customerPhone && user.role === 'customer'));
         localStorage.setItem("users", JSON.stringify(updatedUsers));
+        
+        // Delete loyalty stamps
+        localStorage.removeItem(`stamps_${customerPhone}`);
+
+        // Delete pending referral rewards
+        localStorage.removeItem(`pending_referral_rewards_${customerPhone}`);
+
+        // Delete from referral activity history
+        const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
+        const updatedReferralActivity = referralActivity.filter(
+            ref => ref.referrer !== userToDelete.name && ref.referred !== userToDelete.name
+        );
+        localStorage.setItem('referralActivity', JSON.stringify(updatedReferralActivity));
+        
         toast({
             title: "Client supprimé",
-            description: `Le client avec le numéro ${customerPhone} a été supprimé.`,
+            description: `Toutes les données du client avec le numéro ${customerPhone} ont été supprimées.`,
         });
         setCustomerPhone('');
     } else {
@@ -263,7 +279,7 @@ export default function SettingsPage() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Cette action est irréversible. Toutes les données du client {customerPhone} seront définitivement supprimées.
+                        Cette action est irréversible. Toutes les données du client {customerPhone} (y compris les tampons et l'historique de parrainage) seront définitivement supprimées.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
