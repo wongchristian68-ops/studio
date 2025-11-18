@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
@@ -15,7 +16,7 @@ import { engagementData } from "@/lib/data";
 const chartConfig = {
   stamps: {
     label: "Tampons",
-    color: "hsl(var(--primary))",
+    color: "hsl(340 90% 70%)",
   },
   referrals: {
     label: "Parrainages",
