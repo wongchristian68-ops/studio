@@ -20,11 +20,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const generateReferralCode = (name: string): string => {
-    if (!name) return 'USER-XXXX';
-    const namePart = name.split(' ')[0].toUpperCase().substring(0, 4);
-    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `${namePart}-${randomPart}`;
+const generateReferralCode = (): string => {
+    return Math.random().toString(36).substring(2, 10).toUpperCase();
 };
 
 export function SignUpForm() {
@@ -45,7 +42,7 @@ export function SignUpForm() {
     if (userExists) {
       setShowUserExistsAlert(true);
     } else {
-      const referralCode = generateReferralCode(name);
+      const referralCode = generateReferralCode();
       const newUser = { name, phone, role, referralCode };
       existingUsers.push(newUser);
       localStorage.setItem("users", JSON.stringify(existingUsers));
