@@ -7,7 +7,7 @@ export function OverviewStats() {
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
+          <CardTitle className="text-sm font-medium">Clients Totaux</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -16,7 +16,7 @@ export function OverviewStats() {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Stamps Validated</CardTitle>
+          <CardTitle className="text-sm font-medium">Tampons Validés</CardTitle>
           <QrCode className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -25,7 +25,7 @@ export function OverviewStats() {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Rewards Claimed</CardTitle>
+          <CardTitle className="text-sm font-medium">Récompenses Réclamées</CardTitle>
           <Gift className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -34,7 +34,7 @@ export function OverviewStats() {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Referrals</CardTitle>
+          <CardTitle className="text-sm font-medium">Parrainages Actifs</CardTitle>
           <UserPlus className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>

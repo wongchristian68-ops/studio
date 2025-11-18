@@ -21,13 +21,13 @@ function CustomerHeader() {
           </Link>
           <nav className="hidden gap-6 md:flex">
             <Link href="/customer" className="text-sm font-medium text-foreground hover:text-primary">
-              My Points
+              Mes Points
             </Link>
             <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary">
-              Rewards
+              Récompenses
             </Link>
             <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary">
-              Refer a Friend
+              Parrainer un ami
             </Link>
           </nav>
         </div>
@@ -49,10 +49,10 @@ function CustomerHeader() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Jane Doe</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem><User className="mr-2 h-4 w-4" />Profile</DropdownMenuItem>
-              <DropdownMenuItem><Gift className="mr-2 h-4 w-4" />My Rewards</DropdownMenuItem>
+              <DropdownMenuItem><User className="mr-2 h-4 w-4" />Profil</DropdownMenuItem>
+              <DropdownMenuItem><Gift className="mr-2 h-4 w-4" />Mes récompenses</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild><Link href="/"><LogOut className="mr-2 h-4 w-4" />Logout</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/"><LogOut className="mr-2 h-4 w-4" />Déconnexion</Link></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

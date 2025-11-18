@@ -9,8 +9,8 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
-        <CardDescription>Sign in to access your dashboard</CardDescription>
+        <CardTitle className="text-2xl font-headline">Content de vous revoir</CardTitle>
+        <CardDescription>Connectez-vous pour accéder à votre tableau de bord</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -19,15 +19,15 @@ export function LoginForm() {
         </div>
         <div className="space-y-2">
           <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Mot de passe</Label>
             <Link href="#" className="ml-auto inline-block text-sm underline">
-              Forgot your password?
+              Mot de passe oublié ?
             </Link>
           </div>
           <Input id="password" type="password" required />
         </div>
         <Button type="submit" className="w-full" asChild>
-          <Link href="/dashboard">Sign In</Link>
+          <Link href="/dashboard">Se connecter</Link>
         </Button>
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
@@ -37,15 +37,15 @@ export function LoginForm() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-card px-2 text-muted-foreground">
-              Or continue with
+              Ou continuer avec
             </span>
           </div>
         </div>
         <OAuthButtons />
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
+          Vous n'avez pas de compte ?{" "}
           <Link href="/signup" className="underline">
-            Sign up
+            S'inscrire
           </Link>
         </div>
       </CardFooter>

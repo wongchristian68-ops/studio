@@ -19,16 +19,16 @@ export function ReferralCard() {
     const copyToClipboard = () => {
         navigator.clipboard.writeText(referralCode);
         toast({
-            title: "Copied to clipboard!",
-            description: "Your referral code has been copied.",
+            title: "Copié dans le presse-papiers !",
+            description: "Votre code de parrainage a été copié.",
         });
     };
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Refer a Friend</CardTitle>
-                <CardDescription>Share your code and you both get rewards!</CardDescription>
+                <CardTitle>Parrainer un ami</CardTitle>
+                <CardDescription>Partagez votre code et vous obtenez tous les deux des récompenses !</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="p-4 border rounded-lg bg-muted flex justify-center">
@@ -38,7 +38,7 @@ export function ReferralCard() {
                 </div>
                 <div className="flex items-center space-x-2">
                     <Input value={referralCode} readOnly />
-                    <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copy referral code">
+                    <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copier le code de parrainage">
                         <Copy className="h-4 w-4" />
                     </Button>
                 </div>

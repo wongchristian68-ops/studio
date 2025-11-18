@@ -22,18 +22,15 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-primary font-headline">
-                    Connect with Your Customers, Grow Your Restaurant
+                    Connectez-vous avec vos clients, développez votre restaurant
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    RestoConnect is the all-in-one platform to build customer loyalty, drive referrals, and manage your online reputation.
+                    RestoConnect est la plateforme tout-en-un pour fidéliser vos clients, générer des recommandations et gérer votre réputation en ligne.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button asChild size="lg" className="bg-primary hover:bg-accent text-primary-foreground hover:text-accent-foreground">
-                    <Link href="/signup">Get Started for Free</Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline">
-                    <Link href="/dashboard">View Demo Dashboard</Link>
+                    <Link href="/signup">Commencez gratuitement</Link>
                   </Button>
                 </div>
               </div>
@@ -57,12 +54,12 @@ export default function Home() {
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm text-secondary-foreground">Key Features</div>
+                <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm text-secondary-foreground">Fonctionnalités clés</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                  Everything You Need to Succeed
+                  Tout ce dont vous avez besoin pour réussir
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  From digital stamp cards to powerful referral marketing, we've got you covered.
+                  Des cartes de fidélité numériques au marketing de parrainage puissant, nous avons ce qu'il vous faut.
                 </p>
               </div>
             </div>
@@ -72,10 +69,10 @@ export default function Home() {
                   <div className="p-4 bg-primary/10 rounded-full mb-4">
                     <QrCode className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle>Digital Loyalty Program</CardTitle>
+                  <CardTitle>Programme de fidélité numérique</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <p className="text-muted-foreground">Replace paper punch cards with a seamless QR-based loyalty system that customers love.</p>
+                  <p className="text-muted-foreground">Remplacez les cartes de pointage en papier par un système de fidélité par QR code transparent que les clients adorent.</p>
                 </CardContent>
               </Card>
               <Card className="hover:shadow-lg transition-shadow">
@@ -83,10 +80,10 @@ export default function Home() {
                   <div className="p-4 bg-primary/10 rounded-full mb-4">
                     <Users className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle>Automated Referrals</CardTitle>
+                  <CardTitle>Parrainages automatisés</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <p className="text-muted-foreground">Turn your best customers into advocates with unique referral codes and automated rewards.</p>
+                  <p className="text-muted-foreground">Transformez vos meilleurs clients en ambassadeurs avec des codes de parrainage uniques et des récompenses automatisées.</p>
                 </CardContent>
               </Card>
               <Card className="hover:shadow-lg transition-shadow">
@@ -94,10 +91,10 @@ export default function Home() {
                   <div className="p-4 bg-primary/10 rounded-full mb-4">
                     <Star className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle>Review Management</CardTitle>
+                  <CardTitle>Gestion des avis</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <p className="text-muted-foreground">Encourage positive Google reviews and get notified about feedback to protect your reputation.</p>
+                  <p className="text-muted-foreground">Encouragez les avis Google positifs et soyez averti des commentaires pour protéger votre réputation.</p>
                 </CardContent>
               </Card>
             </div>
@@ -106,7 +103,7 @@ export default function Home() {
       </main>
       <footer className="bg-secondary/50 py-6">
         <div className="container mx-auto text-center text-muted-foreground text-sm">
-          © {new Date().getFullYear()} RestoConnect. All rights reserved.
+          © {new Date().getFullYear()} RestoConnect. Tous droits réservés.
         </div>
       </footer>
     </div>

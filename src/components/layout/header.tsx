@@ -12,10 +12,10 @@ export function Header() {
         </Link>
         <nav className="flex items-center gap-4">
           <Button variant="ghost" asChild>
-            <Link href="/login">Sign In</Link>
+            <Link href="/login">Se connecter</Link>
           </Button>
           <Button asChild className="bg-primary hover:bg-accent text-primary-foreground hover:text-accent-foreground">
-            <Link href="/signup">Get Started</Link>
+            <Link href="/signup">Commencer</Link>
           </Button>
         </nav>
       </div>

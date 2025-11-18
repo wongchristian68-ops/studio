@@ -27,8 +27,8 @@ export function RecentReviews() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Reviews</CardTitle>
-        <CardDescription>Latest customer feedback from Google.</CardDescription>
+        <CardTitle>Avis Récents</CardTitle>
+        <CardDescription>Derniers commentaires des clients de Google.</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[390px]">

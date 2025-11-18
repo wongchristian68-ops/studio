@@ -9,8 +9,8 @@ export function EngagementChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Loyalty Engagement</CardTitle>
-        <CardDescription>Stamps collected vs. referrals made per month.</CardDescription>
+        <CardTitle>Engagement de fidélité</CardTitle>
+        <CardDescription>Tampons collectés vs parrainages effectués par mois.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
@@ -36,8 +36,8 @@ export function EngagementChart() {
                 content={<ChartTooltipContent indicator="dot" />}
               />
               <Legend content={<ChartLegendContent />} />
-              <Bar dataKey="stamps" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Stamps" />
-              <Bar dataKey="referrals" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} name="Referrals" />
+              <Bar dataKey="stamps" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Tampons" />
+              <Bar dataKey="referrals" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} name="Parrainages" />
             </BarChart>
           </ResponsiveContainer>
         </div>

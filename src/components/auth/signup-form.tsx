@@ -10,12 +10,12 @@ export function SignUpForm() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
-        <CardDescription>Enter your details to get started</CardDescription>
+        <CardTitle className="text-2xl font-headline">Créer un compte</CardTitle>
+        <CardDescription>Entrez vos informations pour commencer</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
+          <Label htmlFor="name">Nom complet</Label>
           <Input id="name" type="text" placeholder="John Doe" required />
         </div>
         <div className="space-y-2">
@@ -23,23 +23,23 @@ export function SignUpForm() {
           <Input id="email" type="email" placeholder="m@example.com" required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Mot de passe</Label>
           <Input id="password" type="password" required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="role">I am a...</Label>
+          <Label htmlFor="role">Je suis un...</Label>
           <Select>
             <SelectTrigger id="role">
-              <SelectValue placeholder="Select your role" />
+              <SelectValue placeholder="Sélectionnez votre rôle" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="customer">Customer</SelectItem>
+              <SelectItem value="customer">Client</SelectItem>
               <SelectItem value="restaurateur">Restaurateur</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <Button type="submit" className="w-full">
-          Create Account
+          Créer un compte
         </Button>
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
@@ -49,15 +49,15 @@ export function SignUpForm() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-card px-2 text-muted-foreground">
-              Or sign up with
+              Ou s'inscrire avec
             </span>
           </div>
         </div>
         <OAuthButtons />
         <div className="mt-4 text-center text-sm">
-          Already have an account?{" "}
+          Vous avez déjà un compte ?{" "}
           <Link href="/login" className="underline">
-            Sign in
+            Se connecter
           </Link>
         </div>
       </CardFooter>

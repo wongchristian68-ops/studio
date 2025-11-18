@@ -48,34 +48,34 @@ export default function DashboardLayout({
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Overview" isActive={true}>
+                <SidebarMenuButton asChild tooltip="Aperçu" isActive={true}>
                    <Link href="/dashboard">
                     <Home />
-                    <span>Overview</span>
+                    <span>Aperçu</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Loyalty Program">
+                <SidebarMenuButton asChild tooltip="Programme de fidélité">
                    <Link href="#">
                     <QrCode />
-                    <span>Loyalty Program</span>
+                    <span>Programme de fidélité</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Referrals">
+                <SidebarMenuButton asChild tooltip="Parrainages">
                   <Link href="#">
                     <Users />
-                    <span>Referrals</span>
+                    <span>Parrainages</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Reviews">
+                <SidebarMenuButton asChild tooltip="Avis">
                   <Link href="#">
                     <Star />
-                    <span>Reviews</span>
+                    <span>Avis</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -84,10 +84,10 @@ export default function DashboardLayout({
           <SidebarFooter>
              <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Settings">
+                <SidebarMenuButton asChild tooltip="Paramètres">
                   <Link href="#">
                     <Settings />
-                    <span>Settings</span>
+                    <span>Paramètres</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -98,11 +98,11 @@ export default function DashboardLayout({
           <header className="flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
             <SidebarTrigger className="md:hidden"/>
             <div className="flex-1">
-              <h1 className="text-lg font-semibold font-headline">Overview</h1>
+              <h1 className="text-lg font-semibold font-headline">Aperçu</h1>
             </div>
             <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
-              <span className="sr-only">Toggle notifications</span>
+              <span className="sr-only">Activer/Désactiver les notifications</span>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -114,16 +114,16 @@ export default function DashboardLayout({
                   >
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                   </svg>
-                  <span className="sr-only">Toggle user menu</span>
+                  <span className="sr-only">Ouvrir le menu utilisateur</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Paramètres</DropdownMenuItem>
                 <DropdownMenuItem>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/">Logout</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/">Déconnexion</Link></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </header>

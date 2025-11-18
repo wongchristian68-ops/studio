@@ -3,16 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Gift } from "lucide-react";
 
 const rewards = [
-    { id: 1, title: "Free Coffee", points: 10, available: false },
-    { id: 2, title: "50% Off Pastry", points: 15, available: true },
-    { id: 3, title: "Free Meal", points: 50, available: true },
+    { id: 1, title: "Café gratuit", points: 10, available: false },
+    { id: 2, title: "50% de réduction sur la pâtisserie", points: 15, available: true },
+    { id: 3, title: "Repas gratuit", points: 50, available: true },
 ];
 
 export function RewardsSection() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Available Rewards</CardTitle>
+                <CardTitle>Récompenses disponibles</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
                 {rewards.map(reward => (
@@ -24,7 +24,7 @@ export function RewardsSection() {
                                 <p className="text-sm text-muted-foreground">{reward.points} points</p>
                             </div>
                         </div>
-                        <Button size="sm" disabled={!reward.available}>Claim</Button>
+                        <Button size="sm" disabled={!reward.available}>Réclamer</Button>
                     </div>
                 ))}
             </CardContent>

@@ -7,11 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Star } from "lucide-react";
 
 const history = [
-    { id: 1, date: "2024-07-20", description: "Stamp Earned", points: "+1" },
-    { id: 2, date: "2024-07-15", description: "Reward Claimed: Free Coffee", points: "-10" },
-    { id: 3, date: "2024-07-12", description: "Stamp Earned", points: "+1" },
-    { id: 4, date: "2024-07-11", description: "Referral Bonus", points: "+5" },
-    { id: 5, date: "2024-07-10", description: "Stamp Earned", points: "+1" },
+    { id: 1, date: "2024-07-20", description: "Tampon gagné", points: "+1" },
+    { id: 2, date: "2024-07-15", description: "Récompense réclamée : Café gratuit", points: "-10" },
+    { id: 3, date: "2024-07-12", description: "Tampon gagné", points: "+1" },
+    { id: 4, date: "2024-07-11", description: "Bonus de parrainage", points: "+5" },
+    { id: 5, date: "2024-07-10", description: "Tampon gagné", points: "+1" },
 ];
 
 export default function CustomerPage() {
@@ -21,8 +21,8 @@ export default function CustomerPage() {
                 <LoyaltyStatus />
                 <Card>
                     <CardHeader>
-                        <CardTitle>History</CardTitle>
-                        <CardDescription>Your recent loyalty activity.</CardDescription>
+                        <CardTitle>Historique</CardTitle>
+                        <CardDescription>Votre activité de fidélité récente.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -49,13 +49,13 @@ export default function CustomerPage() {
             <div className="space-y-8">
                 <Card className="text-center">
                     <CardHeader>
-                        <CardTitle>Enjoying your experience?</CardTitle>
+                        <CardTitle>Vous appréciez votre expérience ?</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center gap-4">
-                        <p className="text-muted-foreground">Help us by leaving a review on Google!</p>
+                        <p className="text-muted-foreground">Aidez-nous en laissant un avis sur Google !</p>
                         <Button size="lg" className="w-full bg-primary hover:bg-accent text-primary-foreground hover:text-accent-foreground">
                             <Star className="mr-2 h-4 w-4" />
-                            Leave a Review
+                            Laissez un avis
                         </Button>
                     </CardContent>
                 </Card>

@@ -9,14 +9,14 @@ export function LoyaltyStatus() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Your Loyalty Status</CardTitle>
-                <CardDescription>You have {currentStamps} stamps. Only {stampsForReward - currentStamps} more to go for a free reward!</CardDescription>
+                <CardTitle>Votre statut de fidélité</CardTitle>
+                <CardDescription>Vous avez {currentStamps} tampons. Encore {stampsForReward - currentStamps} pour une récompense gratuite !</CardDescription>
             </CardHeader>
             <CardContent>
                 <Progress value={progress} className="w-full" />
                 <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                    <span>0 stamps</span>
-                    <span>{stampsForReward} stamps</span>
+                    <span>0 tampons</span>
+                    <span>{stampsForReward} tampons</span>
                 </div>
             </CardContent>
         </Card>

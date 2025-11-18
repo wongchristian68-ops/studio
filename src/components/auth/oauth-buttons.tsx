@@ -12,7 +12,7 @@ export function OAuthButtons() {
       </Button>
       <Button variant="outline">
         <Phone />
-        <span className="ml-2">Phone</span>
+        <span className="ml-2">Téléphone</span>
       </Button>
     </div>
   );
