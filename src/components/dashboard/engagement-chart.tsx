@@ -1,9 +1,28 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { ChartTooltipContent, ChartLegendContent } from "@/components/ui/chart";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
 import { engagementData } from "@/lib/data";
+
+const chartConfig = {
+  stamps: {
+    label: "Tampons",
+    color: "hsl(var(--primary))",
+  },
+  referrals: {
+    label: "Parrainages",
+    color: "hsl(var(--accent))",
+  },
+} satisfies ChartConfig;
+
 
 export function EngagementChart() {
   return (
@@ -13,34 +32,23 @@ export function EngagementChart() {
         <CardDescription>Tampons collectés vs parrainages effectués par mois.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={engagementData}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
-              <XAxis
-                dataKey="month"
-                stroke="hsl(var(--foreground))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="hsl(var(--foreground))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `${value}`}
-              />
-              <Tooltip
-                cursor={{ fill: 'hsl(var(--muted))' }}
-                content={<ChartTooltipContent indicator="dot" />}
-              />
-              <Legend content={<ChartLegendContent />} />
-              <Bar dataKey="stamps" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Tampons" />
-              <Bar dataKey="referrals" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} name="Parrainages" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+          <BarChart accessibilityLayer data={engagementData}>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => value.slice(0, 3)}
+            />
+            <YAxis />
+            <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+            <ChartLegend content={<ChartLegendContent />} />
+            <Bar dataKey="stamps" fill="var(--color-stamps)" radius={4} />
+            <Bar dataKey="referrals" fill="var(--color-referrals)" radius={4} />
+          </BarChart>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
