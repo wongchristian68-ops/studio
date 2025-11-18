@@ -11,7 +11,11 @@ import {
   ChartLegendContent,
 } from "@/components/ui/chart";
 import type { ChartConfig } from "@/components/ui/chart";
-import { engagementData } from "@/lib/data";
+import { engagementData as initialEngagementData, referralActivity } from "@/lib/data";
+import { useEffect, useState } from "react";
+import type { EngagementData } from "@/lib/types";
+import { getActivityLog } from "@/lib/activity-log";
+import { subMonths, format, startOfMonth } from 'date-fns';
 
 const chartConfig = {
   stamps: {
@@ -26,6 +30,49 @@ const chartConfig = {
 
 
 export function EngagementChart() {
+  const [engagementData, setEngagementData] = useState<EngagementData[]>(initialEngagementData);
+
+  useEffect(() => {
+     if (typeof window === 'undefined') return;
+
+    // Initialize data for the last 6 months
+    const last6Months: EngagementData[] = [];
+    for (let i = 5; i >= 0; i--) {
+        const date = subMonths(new Date(), i);
+        last6Months.push({
+            month: format(date, 'MMM'),
+            stamps: 0,
+            referrals: 0,
+        });
+    }
+    
+    // Process stamp activity
+    const activityLog = getActivityLog();
+    activityLog.forEach(event => {
+        if (event.type === 'stamp') {
+            const month = format(new Date(event.date), 'MMM');
+            const monthData = last6Months.find(d => d.month === month);
+            if (monthData) {
+                monthData.stamps += 1;
+            }
+        }
+    });
+
+    // Process referral activity
+    referralActivity.forEach(referral => {
+        if (referral.status === 'Complété') {
+            const month = format(new Date(referral.date), 'MMM');
+            const monthData = last6Months.find(d => d.month === month);
+            if (monthData) {
+                monthData.referrals += 1;
+            }
+        }
+    });
+    
+    setEngagementData(last6Months);
+
+  }, []);
+
   return (
     <Card>
       <CardHeader>
@@ -41,9 +88,9 @@ export function EngagementChart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value}
             />
-            <YAxis />
+            <YAxis allowDecimals={false} />
             <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
             <ChartLegend content={<ChartLegendContent />} />
             <Bar dataKey="stamps" fill="var(--color-stamps)" radius={4} />

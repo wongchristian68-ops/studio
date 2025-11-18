@@ -8,6 +8,8 @@ import { QrCode, CameraOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
+import { logStampActivity } from "@/lib/activity-log";
+
 
 export default function ScannerPage() {
   const [isScanning, setIsScanning] = useState(false);
@@ -55,12 +57,28 @@ export default function ScannerPage() {
   };
   
   const handleValidation = () => {
+    // In a real app, we'd validate the QR code content. Here we simulate success.
+    const user = sessionStorage.getItem('loggedInUser');
+    if (user) {
+        const parsedUser = JSON.parse(user);
+        const currentStamps = parseInt(localStorage.getItem(`stamps_${parsedUser.phone}`) || '0', 10);
+        const loyaltySettings = JSON.parse(localStorage.getItem('loyaltySettings') || '{ "stampCount": 10 }');
+        
+        let newStampCount = currentStamps + 1;
+        if (newStampCount > loyaltySettings.stampCount) {
+            newStampCount = loyaltySettings.stampCount;
+        }
+        
+        localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
+        logStampActivity();
+    }
+    
     setIsScanning(false);
     toast({
         title: "Tampon validé !",
         description: "Vous avez bien reçu votre tampon de fidélité."
     });
-    // TODO: Add logic to actually increment the stamp count
+
     setTimeout(() => {
       router.push('/customer');
     }, 1000);

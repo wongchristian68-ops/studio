@@ -5,29 +5,32 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, QrCode, Gift, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { referralActivity } from "@/lib/data";
-
-const initialStats = {
-  totalClients: 0,
-  stampsValidated: 0,
-  rewardsClaimed: 0,
-  activeReferrals: 0,
-};
+import { getActivityLog } from "@/lib/activity-log";
 
 export function OverviewStats() {
-  const [stats, setStats] = useState(initialStats);
+  const [stats, setStats] = useState({
+    totalClients: 0,
+    stampsValidated: 0,
+    rewardsClaimed: 0,
+    activeReferrals: 0,
+  });
 
   useEffect(() => {
-    // In a real app, this would be an API call. Here we simulate it with localStorage and data files.
+    if (typeof window === 'undefined') return;
+    
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const totalClients = users.filter((u: any) => u.role === 'customer').length;
     
     const completedReferrals = referralActivity.filter(r => r.status === 'Complété').length;
 
+    const activityLog = getActivityLog();
+    const stampsValidated = activityLog.filter(e => e.type === 'stamp').length;
+
     setStats({
       totalClients,
       activeReferrals: completedReferrals,
-      stampsValidated: 0, // Resetting to 0 as there is no data source
-      rewardsClaimed: 0, // Resetting to 0 as there is no data source
+      stampsValidated,
+      rewardsClaimed: 0, // No data source for this yet
     });
 
   }, []);

@@ -4,15 +4,25 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Stamp } from "lucide-react";
+import { Stamp, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export function LoyaltyStatus() {
-    const currentStamps = 7;
+    const [currentStamps, setCurrentStamps] = useState(0);
     const [stampsForReward, setStampsForReward] = useState(10);
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
+        const user = sessionStorage.getItem('loggedInUser');
+        if (user) {
+            const parsedUser = JSON.parse(user);
+            const savedStamps = localStorage.getItem(`stamps_${parsedUser.phone}`);
+            setCurrentStamps(savedStamps ? parseInt(savedStamps, 10) : 0);
+        }
+
         const savedLogo = localStorage.getItem("loyaltyCardLogo");
         if (savedLogo) {
             setLogoUrl(savedLogo);
@@ -26,17 +36,34 @@ export function LoyaltyStatus() {
             }
         }
     }, []);
+    
+    const isRewardAvailable = currentStamps >= stampsForReward;
+    const remainingStamps = stampsForReward - currentStamps;
 
-    const remainingStamps = stampsForReward - currentStamps > 0 ? stampsForReward - currentStamps : 0;
+    const handleClaimReward = () => {
+        const user = sessionStorage.getItem('loggedInUser');
+        if (user) {
+            const parsedUser = JSON.parse(user);
+            const newStampCount = 0;
+            localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
+            setCurrentStamps(newStampCount);
+
+            toast({
+                title: "Récompense réclamée !",
+                description: "Félicitations ! Vos tampons ont été réinitialisés."
+            });
+        }
+    };
+
 
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Votre carte de fidélité</CardTitle>
                 <CardDescription>
-                    {remainingStamps > 0 
-                        ? `Encore ${remainingStamps} tampon(s) pour votre prochaine récompense !`
-                        : "Félicitations ! Vous avez une récompense."
+                    {isRewardAvailable
+                        ? "Félicitations ! Vous avez une récompense disponible."
+                        : `Encore ${remainingStamps} tampon(s) pour votre prochaine récompense !`
                     }
                 </CardDescription>
             </CardHeader>
@@ -59,9 +86,16 @@ export function LoyaltyStatus() {
                         ))}
                     </div>
                 </div>
-                <div className="text-sm text-muted-foreground mt-2">
-                    {currentStamps} / {stampsForReward} tampons
-                </div>
+                 {isRewardAvailable ? (
+                    <Button onClick={handleClaimReward} size="lg" className="mt-4">
+                        <Award className="mr-2 h-5 w-5" />
+                        Réclamer ma récompense
+                    </Button>
+                ) : (
+                    <div className="text-sm text-muted-foreground mt-2">
+                        {currentStamps} / {stampsForReward} tampons
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
