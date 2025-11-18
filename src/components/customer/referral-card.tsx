@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,7 +109,8 @@ export function ReferralCard() {
             // --- Give reward to the referrer (pending) ---
             if(referralRewardDescription) {
                 const referrerPendingRewardsKey = `pending_referral_rewards_${referrer.phone}`;
-                const currentPendingRewards: string[] = JSON.parse(localStorage.getItem(referrerPendingRewardsKey) || '[]');
+                const currentPendingRewardsStr = localStorage.getItem(referrerPendingRewardsKey);
+                const currentPendingRewards: string[] = currentPendingRewardsStr ? JSON.parse(currentPendingRewardsStr) : [];
                 currentPendingRewards.push(referralRewardDescription);
                 localStorage.setItem(referrerPendingRewardsKey, JSON.stringify(currentPendingRewards));
             }
@@ -224,3 +224,5 @@ export function ReferralCard() {
         </div>
     );
 }
+
+    
