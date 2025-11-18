@@ -2,56 +2,22 @@
 import type { Review, EngagementData, Referral } from './types';
 
 export const stats = {
-  totalClients: 1254,
-  stampsValidated: 8321,
-  rewardsClaimed: 742,
-  activeReferrals: 156,
+  totalClients: 0,
+  stampsValidated: 0,
+  rewardsClaimed: 0,
+  activeReferrals: 0,
 };
 
-export const recentReviews: Review[] = [
-  {
-    id: '1',
-    customerName: 'Alice Johnson',
-    rating: 5,
-    comment: 'J\'adore cet endroit ! Les récompenses de fidélité sont un super bonus.',
-    date: '2024-07-20',
-  },
-  {
-    id: '2',
-    customerName: 'Bob Williams',
-    rating: 4,
-    comment: 'Excellente nourriture et personnel sympathique. L\'application facilite le suivi des points.',
-    date: '2024-07-19',
-  },
-  {
-    id: '3',
-    customerName: 'Charlie Brown',
-    rating: 2,
-    comment: 'Ma commande était froide et le service était lent. Pas content.',
-    date: '2024-07-18',
-  },
-  {
-    id: '4',
-    customerName: 'Diana Prince',
-    rating: 5,
-    comment: 'Le meilleur café de la ville. Je viens ici tous les jours !',
-    date: '2024-07-17',
-  },
-];
+export const recentReviews: Review[] = [];
 
 export const engagementData: EngagementData[] = [
-  { month: 'Jan', stamps: 400, referrals: 24 },
-  { month: 'Fév', stamps: 300, referrals: 13 },
-  { month: 'Mar', stamps: 500, referrals: 98 },
-  { month: 'Avr', stamps: 278, referrals: 39 },
-  { month: 'Mai', stamps: 189, referrals: 48 },
-  { month: 'Juin', stamps: 239, referrals: 38 },
-  { month: 'Juil', stamps: 349, referrals: 43 },
+  { month: 'Jan', stamps: 0, referrals: 0 },
+  { month: 'Fév', stamps: 0, referrals: 0 },
+  { month: 'Mar', stamps: 0, referrals: 0 },
+  { month: 'Avr', stamps: 0, referrals: 0 },
+  { month: 'Mai', stamps: 0, referrals: 0 },
+  { month: 'Juin', stamps: 0, referrals: 0 },
+  { month: 'Juil', stamps: 0, referrals: 0 },
 ];
 
-export const referralActivity: Referral[] = [
-  { id: '1', referrer: 'Alice Johnson', referred: 'Eve Martin', date: '2024-07-21', status: 'Complété' },
-  { id: '2', referrer: 'Bob Williams', referred: 'Frank Miller', date: '2024-07-20', status: 'En attente' },
-  { id: '3', referrer: 'Diana Prince', referred: 'Grace Lee', date: '2024-07-19', status: 'Complété' },
-  { id: '4', referrer: 'Alice Johnson', referred: 'Heidi Turner', date: '2024-07-18', status: 'Expiré' },
-];
+export const referralActivity: Referral[] = [];
