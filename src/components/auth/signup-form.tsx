@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react";
@@ -42,6 +43,9 @@ export function SignUpForm() {
       const newUser = { name, phone, role };
       existingUsers.push(newUser);
       localStorage.setItem("users", JSON.stringify(existingUsers));
+      
+      // Also save to session storage for immediate use
+      sessionStorage.setItem('loggedInUser', JSON.stringify(newUser));
       
       toast({
         title: "Compte créé !",
