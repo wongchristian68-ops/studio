@@ -62,4 +62,3 @@ export function logReferralClaimActivity(userPhone: string, points: number): voi
 export function logReferralBonusActivity(userPhone: string, points: number): void {
     logActivity('referral_bonus', userPhone, { points });
 }
-

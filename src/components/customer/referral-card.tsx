@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import type { Referral } from "@/lib/types";
 import { Alert, AlertDescription } from "../ui/alert";
-import { logStampActivity } from "@/lib/activity-log";
+import { logReferralBonusActivity, logReferralClaimActivity } from "@/lib/activity-log";
 
 const getPointsFromRewardString = (rewardString: string): number => {
     if (!rewardString) return 0;
@@ -111,11 +111,7 @@ export function ReferralCard() {
                 const currentReferredStamps = parseInt(localStorage.getItem(referredStampsKey) || '0', 10);
                 const newStampCount = currentReferredStamps + pointsForReferred;
                 localStorage.setItem(referredStampsKey, newStampCount.toString());
-
-                // Log stamp activity for the referred user
-                for (let i = 0; i < pointsForReferred; i++) {
-                    logStampActivity(currentUser.phone);
-                }
+                logReferralBonusActivity(currentUser.phone, pointsForReferred);
             }
             localStorage.setItem(alreadyReferredKey, 'true'); // Mark that user has used a referral code
             
@@ -161,13 +157,11 @@ export function ReferralCard() {
         const pointsPerReward = getPointsFromRewardString(referralRewardDescription);
         const totalStampsToAdd = pendingReferralRewards * pointsPerReward;
 
-        const stampsKey = `stamps_${currentUser.phone}`;
-        const currentStamps = parseInt(localStorage.getItem(stampsKey) || '0', 10);
-        localStorage.setItem(stampsKey, (currentStamps + totalStampsToAdd).toString());
-
-        // Log stamp activity for the referrer
-        for (let i = 0; i < totalStampsToAdd; i++) {
-            logStampActivity(currentUser.phone);
+        if (totalStampsToAdd > 0) {
+            const stampsKey = `stamps_${currentUser.phone}`;
+            const currentStamps = parseInt(localStorage.getItem(stampsKey) || '0', 10);
+            localStorage.setItem(stampsKey, (currentStamps + totalStampsToAdd).toString());
+            logReferralClaimActivity(currentUser.phone, totalStampsToAdd);
         }
 
         const rewardsKey = `pending_referral_rewards_${currentUser.phone}`;
