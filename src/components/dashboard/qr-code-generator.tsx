@@ -21,16 +21,29 @@ const QrCodeSvg = ({ value }: { value: string }) => {
     // This is a placeholder for a real QR code library. 
     // In a real app, you'd use a library to generate a proper QR code image from the value.
     const pseudoData = useMemo(() => {
+        if (!value) return '';
         const segments = [];
+        // A simple hashing function to create a visually "random" pattern based on the input string
+        let hash = 0;
+        for (let i = 0; i < value.length; i++) {
+            hash = (hash << 5) - hash + value.charCodeAt(i);
+            hash |= 0; // Convert to 32bit integer
+        }
+
         for (let i = 0; i < 100; i++) {
-            const hash = value.split('').reduce((acc, char) => acc + char.charCodeAt(0) * (i + 1), 0);
-            if ((hash + i) % 3 === 0) {
+            // Use the hash to decide if a square should be drawn
+            if ((hash + i * value.charCodeAt(i % value.length)) % 3 < 2) {
                 const x = (i % 10) * 10;
                 const y = Math.floor(i / 10) * 10;
                 segments.push(`M${x} ${y}h10v10H${x}z`);
             }
         }
-        return segments.join('');
+        // Add finder patterns for a more QR-code-like look
+        segments.push("M0 0h30v30H0z M10 10h10v10H10z");
+        segments.push("M70 0h30v30H70z M80 10h10v10H80z");
+        segments.push("M0 70h30v30H0z M10 80h10v10H10z");
+        
+        return segments.join(' ');
     }, [value]);
 
   return (

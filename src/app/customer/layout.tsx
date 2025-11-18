@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { UtensilsCrossed, User, Gift, LogOut } from 'lucide-react';
+import { UtensilsCrossed, User, Gift, LogOut, ScanLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -44,8 +44,8 @@ function CustomerHeader() {
             <Link href="/customer" className="text-sm font-medium text-foreground hover:text-primary">
               Mes Points
             </Link>
-            <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary">
-              Récompenses
+            <Link href="/customer/scanner" className="text-sm font-medium text-muted-foreground hover:text-primary">
+              Scanner un code
             </Link>
             <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary">
               Parrainer un ami
@@ -72,6 +72,9 @@ function CustomerHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem><User className="mr-2 h-4 w-4" />Profil</DropdownMenuItem>
               <DropdownMenuItem><Gift className="mr-2 h-4 w-4" />Mes récompenses</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/customer/scanner"><ScanLine className="mr-2 h-4 w-4" />Scanner un code</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />Déconnexion

@@ -13,7 +13,6 @@ import {
   UtensilsCrossed,
   UserPlus,
   Gift,
-  ScanLine
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +44,6 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const pageTitles: { [key: string]: string } = {
     '/dashboard': 'Aperçu',
-    '/dashboard/scanner': 'Scanner un client',
     '/dashboard/loyalty-qr': 'Générer QR Code',
     '/dashboard/referrals': 'Parrainages',
     '/dashboard/reviews': 'Avis',
@@ -71,14 +69,6 @@ export default function DashboardLayout({
                    <Link href="/dashboard">
                     <Home />
                     <span>Aperçu</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Scanner un client" isActive={pathname === '/dashboard/scanner'}>
-                   <Link href="/dashboard/scanner">
-                    <ScanLine />
-                    <span>Scanner un client</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
