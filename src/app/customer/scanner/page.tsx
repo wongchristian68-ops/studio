@@ -18,38 +18,36 @@ export default function ScannerPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  useEffect(() => {
+   useEffect(() => {
     let stream: MediaStream | null = null;
-    const getCameraPermission = async () => {
-      if (isScanning) {
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-          setHasCameraPermission(true);
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } catch (error) {
-          console.error("Error accessing camera:", error);
-          setHasCameraPermission(false);
-          setIsScanning(false);
-          toast({
-            variant: "destructive",
-            title: "Accès à la caméra refusé",
-            description: "Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.",
-          });
+    const enableCamera = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        setHasCameraPermission(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
         }
+      } catch (error) {
+        console.error("Error accessing camera:", error);
+        setHasCameraPermission(false);
+        setIsScanning(false);
+        toast({
+          variant: "destructive",
+          title: "Accès à la caméra refusé",
+          description: "Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.",
+        });
       }
     };
-    getCameraPermission();
+
+    if (isScanning) {
+      enableCamera();
+    }
 
     return () => {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
-        if(videoRef.current) {
-            videoRef.current.srcObject = null;
-        }
-    }
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
   }, [isScanning, toast]);
 
   const handleScanClick = () => {
@@ -61,13 +59,13 @@ export default function ScannerPage() {
     const user = sessionStorage.getItem('loggedInUser');
     if (user) {
         const parsedUser = JSON.parse(user);
+        const loyaltySettingsStr = localStorage.getItem('loyaltySettings');
+        const loyaltySettings = loyaltySettingsStr ? JSON.parse(loyaltySettingsStr) : { stampCount: 10 };
+        const stampCount = loyaltySettings.stampCount || 10;
+        
         const currentStamps = parseInt(localStorage.getItem(`stamps_${parsedUser.phone}`) || '0', 10);
-        const loyaltySettings = JSON.parse(localStorage.getItem('loyaltySettings') || '{ "stampCount": 10 }');
         
         let newStampCount = currentStamps + 1;
-        if (newStampCount > loyaltySettings.stampCount) {
-            newStampCount = loyaltySettings.stampCount;
-        }
         
         localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
         logStampActivity();
@@ -82,6 +80,15 @@ export default function ScannerPage() {
     setTimeout(() => {
       router.push('/customer');
     }, 1000);
+  }
+
+  const handleCancel = () => {
+    setIsScanning(false);
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
   }
 
   return (
@@ -119,7 +126,7 @@ export default function ScannerPage() {
               <Button className="w-full" onClick={handleScanClick}>Scanner le QR Code</Button>
           ) : (
               <div className="w-full flex flex-col sm:flex-row gap-2">
-                  <Button variant="outline" className="w-full" onClick={() => setIsScanning(false)}>Annuler</Button>
+                  <Button variant="outline" className="w-full" onClick={handleCancel}>Annuler</Button>
                   <Button className="w-full" onClick={handleValidation} disabled={hasCameraPermission === false}>Valider le tampon</Button>
               </div>
           )}
