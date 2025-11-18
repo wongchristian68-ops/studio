@@ -12,4 +12,5 @@ export const recentReviews: Review[] = [];
 
 export const engagementData: EngagementData[] = [];
 
+// This will now be read from localStorage, but we keep the type export
 export const referralActivity: Referral[] = [];

@@ -3,10 +3,20 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { referralActivity } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import type { Referral } from "@/lib/types";
+import { useEffect, useState } from "react";
 
 export function ReferralActivity() {
+  const [referralActivity, setReferralActivity] = useState<Referral[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedActivity = JSON.parse(localStorage.getItem('referralActivity') || '[]');
+      setReferralActivity(storedActivity);
+    }
+  }, []);
+
   return (
     <Card>
       <CardHeader>
@@ -24,7 +34,7 @@ export function ReferralActivity() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {referralActivity.map((referral) => (
+            {referralActivity.length > 0 ? referralActivity.map((referral) => (
               <TableRow key={referral.id}>
                 <TableCell className="font-medium">{referral.referrer}</TableCell>
                 <TableCell>{referral.referred}</TableCell>
@@ -45,7 +55,11 @@ export function ReferralActivity() {
                   </Badge>
                 </TableCell>
               </TableRow>
-            ))}
+            )) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-muted-foreground">Aucune activité de parrainage pour le moment.</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>

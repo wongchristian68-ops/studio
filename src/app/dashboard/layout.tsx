@@ -38,7 +38,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
-import { referralActivity } from "@/lib/data";
+import type { Referral } from "@/lib/types";
+
 
 interface Notification {
   type: 'user' | 'reward';
@@ -74,6 +75,7 @@ export default function DashboardLayout({
     }
 
     // Notifications for referrals
+    const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
     const completedReferrals = referralActivity.filter(r => r.status === 'Complété');
     if (completedReferrals.length > 0) {
       newNotifications.push({
@@ -85,7 +87,7 @@ export default function DashboardLayout({
     }
 
     setNotifications(newNotifications);
-  }, []);
+  }, [pathname]); // Re-check on page navigation
 
   const pageTitles: { [key: string]: string } = {
     '/dashboard': 'Aperçu',

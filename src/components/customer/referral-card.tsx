@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Copy, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import type { Referral } from "@/lib/types";
 
 const QrCodeSvg = () => (
     <svg viewBox="0 0 100 100" className="w-full h-full rounded-md">
@@ -15,25 +15,25 @@ const QrCodeSvg = () => (
     </svg>
 )
 
-const generateReferralCode = (name: string): string => {
-    if (!name) return 'USER-XXXX';
-    const namePart = name.split(' ')[0].toUpperCase().substring(0, 4);
-    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `${namePart}-${randomPart}`;
-};
-
+const REFERRAL_REWARD_POINTS = 2; // e.g., 2 bonus stamps
 
 export function ReferralCard() {
     const { toast } = useToast();
     const [referralCode, setReferralCode] = useState("");
+    const [enteredCode, setEnteredCode] = useState("");
+    const [currentUser, setCurrentUser] = useState<any>(null);
     
     useEffect(() => {
         const user = sessionStorage.getItem('loggedInUser');
         if (user) {
             const parsedUser = JSON.parse(user);
-            setReferralCode(generateReferralCode(parsedUser.name));
-        } else {
-            setReferralCode("USER-A1B2");
+            setCurrentUser(parsedUser);
+            // In a real app, user object would be fetched from a DB, but we get it from localStorage for this simulation
+            const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            const fullCurrentUser = allUsers.find((u:any) => u.phone === parsedUser.phone);
+            if (fullCurrentUser && fullCurrentUser.referralCode) {
+                setReferralCode(fullCurrentUser.referralCode);
+            }
         }
     }, []);
 
@@ -46,11 +46,51 @@ export function ReferralCard() {
         });
     };
     
-    const handleValidateReferral = () => {
-        toast({
-            title: "Code de parrainage validé !",
-            description: "Vous et votre ami(e) avez reçu votre récompense."
-        })
+    const handleValidateReferral = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser || !enteredCode) return;
+
+        const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        const referrer = allUsers.find((user: any) => user.referralCode === enteredCode.trim() && user.phone !== currentUser.phone);
+
+        if (referrer) {
+            // Give reward to the referred (current user)
+            const referredStampsKey = `stamps_${currentUser.phone}`;
+            const currentReferredStamps = parseInt(localStorage.getItem(referredStampsKey) || '0', 10);
+            localStorage.setItem(referredStampsKey, (currentReferredStamps + REFERRAL_REWARD_POINTS).toString());
+            
+            // Give reward to the referrer
+            const referrerStampsKey = `stamps_${referrer.phone}`;
+            const currentReferrerStamps = parseInt(localStorage.getItem(referrerStampsKey) || '0', 10);
+            localStorage.setItem(referrerStampsKey, (currentReferrerStamps + REFERRAL_REWARD_POINTS).toString());
+
+            // Log the referral activity
+            const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
+            const newReferral: Referral = {
+                id: `ref-${Date.now()}`,
+                referrer: referrer.name,
+                referred: currentUser.name,
+                date: new Date().toLocaleDateString('fr-FR'),
+                status: 'Complété'
+            };
+            referralActivity.push(newReferral);
+            localStorage.setItem('referralActivity', JSON.stringify(referralActivity));
+
+            toast({
+                title: "Code de parrainage validé !",
+                description: `Félicitations ! Vous et ${referrer.name} avez reçu ${REFERRAL_REWARD_POINTS} tampons bonus.`
+            });
+             // Dispatch a storage event to notify other components (like loyalty status)
+            window.dispatchEvent(new Event('storage'));
+            setEnteredCode("");
+
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Code invalide",
+                description: "Ce code de parrainage n'est pas valide ou c'est votre propre code."
+            })
+        }
     }
 
     return (
@@ -81,7 +121,11 @@ export function ReferralCard() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleValidateReferral} className="flex items-center space-x-2">
-                        <Input placeholder="CODE-AMI" />
+                        <Input 
+                            placeholder="CODE-AMI" 
+                            value={enteredCode}
+                            onChange={(e) => setEnteredCode(e.target.value)}
+                        />
                         <Button type="submit">Valider</Button>
                     </form>
                 </CardContent>

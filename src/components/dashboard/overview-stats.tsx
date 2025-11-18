@@ -4,7 +4,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, QrCode, Gift, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { referralActivity } from "@/lib/data";
+import type { Referral } from "@/lib/types";
 import { getActivityLog } from "@/lib/activity-log";
 
 export function OverviewStats() {
@@ -21,6 +21,7 @@ export function OverviewStats() {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const totalClients = users.filter((u: any) => u.role === 'customer').length;
     
+    const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
     const completedReferrals = referralActivity.filter(r => r.status === 'Complété').length;
 
     const activityLog = getActivityLog();

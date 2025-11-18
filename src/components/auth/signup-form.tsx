@@ -20,6 +20,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const generateReferralCode = (name: string): string => {
+    if (!name) return 'USER-XXXX';
+    const namePart = name.split(' ')[0].toUpperCase().substring(0, 4);
+    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `${namePart}-${randomPart}`;
+};
+
 export function SignUpForm() {
   const [role, setRole] = useState("customer");
   const [showUserExistsAlert, setShowUserExistsAlert] = useState(false);
@@ -32,19 +39,17 @@ export function SignUpForm() {
     const name = formData.get("name") as string;
     const phone = formData.get("phone") as string;
 
-    // Simulate checking if user exists in localStorage
     const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
     const userExists = existingUsers.some((user: any) => user.phone === phone);
 
     if (userExists) {
       setShowUserExistsAlert(true);
     } else {
-      // Simulate saving user
-      const newUser = { name, phone, role };
+      const referralCode = generateReferralCode(name);
+      const newUser = { name, phone, role, referralCode };
       existingUsers.push(newUser);
       localStorage.setItem("users", JSON.stringify(existingUsers));
       
-      // Also save to session storage for immediate use
       sessionStorage.setItem('loggedInUser', JSON.stringify(newUser));
       
       toast({

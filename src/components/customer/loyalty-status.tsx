@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Stamp, Award } from "lucide-react";
+import { Stamp, Award, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -13,9 +13,10 @@ export function LoyaltyStatus() {
     const [currentStamps, setCurrentStamps] = useState(0);
     const [stampsForReward, setStampsForReward] = useState(10);
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
+    const [pendingReferralRewards, setPendingReferralRewards] = useState(0);
     const { toast } = useToast();
 
-    useEffect(() => {
+    const fetchLoyaltyData = () => {
         const user = sessionStorage.getItem('loggedInUser');
         if (user) {
             const parsedUser = JSON.parse(user);
@@ -35,22 +36,33 @@ export function LoyaltyStatus() {
                 setStampsForReward(stampCount);
             }
         }
+    };
+
+    useEffect(() => {
+        fetchLoyaltyData();
+        
+        // Listen for storage changes to update stamps in real-time (e.g., after referral)
+        window.addEventListener('storage', fetchLoyaltyData);
+        return () => {
+            window.removeEventListener('storage', fetchLoyaltyData);
+        };
     }, []);
     
     const isRewardAvailable = currentStamps >= stampsForReward;
-    const remainingStamps = stampsForReward - currentStamps;
+    const remainingStamps = isRewardAvailable ? 0 : stampsForReward - currentStamps;
 
     const handleClaimReward = () => {
         const user = sessionStorage.getItem('loggedInUser');
         if (user) {
             const parsedUser = JSON.parse(user);
-            const newStampCount = 0;
+            // This resets stamps after claiming one reward.
+            const newStampCount = currentStamps - stampsForReward;
             localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
             setCurrentStamps(newStampCount);
 
             toast({
                 title: "Récompense réclamée !",
-                description: "Félicitations ! Vos tampons ont été réinitialisés."
+                description: "Félicitations ! Vos tampons ont été utilisés."
             });
         }
     };
@@ -62,7 +74,7 @@ export function LoyaltyStatus() {
                 <CardTitle>Votre carte de fidélité</CardTitle>
                 <CardDescription>
                     {isRewardAvailable
-                        ? "Félicitations ! Vous avez une récompense disponible."
+                        ? `Félicitations ! Vous avez ${Math.floor(currentStamps / stampsForReward)} récompense(s) disponible(s).`
                         : `Encore ${remainingStamps} tampon(s) pour votre prochaine récompense !`
                     }
                 </CardDescription>
@@ -78,10 +90,10 @@ export function LoyaltyStatus() {
                                 key={index}
                                 className={cn(
                                     "aspect-square rounded-full flex items-center justify-center",
-                                    index < currentStamps ? "bg-primary text-primary-foreground" : "bg-muted"
+                                    index < (currentStamps % stampsForReward) ? "bg-primary text-primary-foreground" : "bg-muted"
                                 )}
                             >
-                                <Stamp className={cn("w-2/3 h-2/3", index < currentStamps ? "opacity-100" : "opacity-25")} />
+                                <Stamp className={cn("w-2/3 h-2/3", index < (currentStamps % stampsForReward) ? "opacity-100" : "opacity-25")} />
                             </div>
                         ))}
                     </div>
@@ -93,7 +105,7 @@ export function LoyaltyStatus() {
                     </Button>
                 ) : (
                     <div className="text-sm text-muted-foreground mt-2">
-                        {currentStamps} / {stampsForReward} tampons
+                        {currentStamps % stampsForReward} / {stampsForReward} tampons
                     </div>
                 )}
             </CardContent>

@@ -11,11 +11,10 @@ import {
   ChartLegendContent,
 } from "@/components/ui/chart";
 import type { ChartConfig } from "@/components/ui/chart";
-import { engagementData as initialEngagementData, referralActivity } from "@/lib/data";
 import { useEffect, useState } from "react";
-import type { EngagementData } from "@/lib/types";
+import type { EngagementData, Referral } from "@/lib/types";
 import { getActivityLog } from "@/lib/activity-log";
-import { subMonths, format, startOfMonth } from 'date-fns';
+import { subMonths, format } from 'date-fns';
 
 const chartConfig = {
   stamps: {
@@ -30,7 +29,7 @@ const chartConfig = {
 
 
 export function EngagementChart() {
-  const [engagementData, setEngagementData] = useState<EngagementData[]>(initialEngagementData);
+  const [engagementData, setEngagementData] = useState<EngagementData[]>([]);
 
   useEffect(() => {
      if (typeof window === 'undefined') return;
@@ -50,21 +49,33 @@ export function EngagementChart() {
     const activityLog = getActivityLog();
     activityLog.forEach(event => {
         if (event.type === 'stamp') {
-            const month = format(new Date(event.date), 'MMM');
-            const monthData = last6Months.find(d => d.month === month);
-            if (monthData) {
-                monthData.stamps += 1;
+            try {
+                const month = format(new Date(event.date), 'MMM');
+                const monthData = last6Months.find(d => d.month === month);
+                if (monthData) {
+                    monthData.stamps += 1;
+                }
+            } catch (e) {
+                // Ignore invalid date formats
             }
         }
     });
 
     // Process referral activity
+    const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
     referralActivity.forEach(referral => {
         if (referral.status === 'Complété') {
-            const month = format(new Date(referral.date), 'MMM');
-            const monthData = last6Months.find(d => d.month === month);
-            if (monthData) {
-                monthData.referrals += 1;
+            try {
+                 // Assuming date is 'dd/mm/yyyy'
+                const dateParts = referral.date.split('/');
+                const dateObject = new Date(+dateParts[2], +dateParts[1] - 1, +dateParts[0]);
+                const month = format(dateObject, 'MMM');
+                const monthData = last6Months.find(d => d.month === month);
+                if (monthData) {
+                    monthData.referrals += 1;
+                }
+            } catch(e) {
+                 // Ignore invalid date formats
             }
         }
     });
