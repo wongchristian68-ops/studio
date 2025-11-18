@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import { logStampActivity } from "@/lib/activity-log";
+import { textToSpeech } from "@/ai/flows/text-to-speech";
 
 export default function ScannerPage() {
   const [isScanning, setIsScanning] = useState(false);
@@ -97,8 +98,10 @@ export default function ScannerPage() {
     setIsScanning(true);
   };
   
-  const handleValidation = (scannedData: string) => {
+  const handleValidation = async (scannedData: string) => {
     setIsLoading(true);
+    setIsScanning(false);
+
     const storedQrDataStr = localStorage.getItem('loyaltyQrCode');
     
     if (!storedQrDataStr) {
@@ -108,7 +111,6 @@ export default function ScannerPage() {
         description: "Aucun QR code valide n'est configuré par le restaurateur."
       });
       setIsLoading(false);
-      setIsScanning(false);
       return;
     }
     
@@ -123,14 +125,24 @@ export default function ScannerPage() {
           logStampActivity();
       }
       
+      const confirmationText = "Tampon validé !";
       toast({
-          title: "Tampon validé !",
+          title: confirmationText,
           description: "Vous avez bien reçu votre tampon de fidélité."
       });
 
+      try {
+        const audioResponse = await textToSpeech(confirmationText);
+        const audio = new Audio(audioResponse.media);
+        audio.play();
+      } catch (e) {
+        console.error("Erreur lors de la génération de la synthèse vocale", e);
+      }
+
       setTimeout(() => {
         router.push('/customer');
-      }, 1000);
+      }, 1500);
+
     } else {
         toast({
             variant: "destructive",
@@ -140,11 +152,10 @@ export default function ScannerPage() {
         // Allow scanning again
          setTimeout(() => {
              setIsLoading(false);
-             animationFrameId.current = requestAnimationFrame(scanQrCode);
+             // Re-enable scanning if user wants to try again
+             // animationFrameId.current = requestAnimationFrame(scanQrCode);
          }, 2000);
     }
-    
-    setIsScanning(false);
   }
 
   const handleCancel = () => {
@@ -194,11 +205,16 @@ export default function ScannerPage() {
         </CardContent>
         <CardFooter>
           {!isScanning ? (
-              <Button className="w-full" onClick={handleScanClick}>Scanner le QR Code</Button>
+              <Button className="w-full" onClick={handleScanClick} disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Scanner le QR Code
+              </Button>
           ) : (
               <div className="w-full flex flex-col sm:flex-row gap-2">
                   <Button variant="outline" className="w-full" onClick={handleCancel}>Annuler</Button>
-                  <Button className="w-full" disabled>Validation en cours...</Button>
+                  <Button className="w-full" disabled>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Validation en cours..."}
+                  </Button>
               </div>
           )}
         </CardFooter>

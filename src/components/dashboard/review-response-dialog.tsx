@@ -39,12 +39,21 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
   const handleGenerateResponse = async () => {
     if (!review) return;
     setIsGenerating(true);
-    const generatedText = await generateReviewResponse({
-      customerName: review.customerName,
-      rating: review.rating,
-      comment: review.comment,
-    });
-    setResponse(generatedText);
+    try {
+        const generatedText = await generateReviewResponse({
+            customerName: review.customerName,
+            rating: review.rating,
+            comment: review.comment,
+        });
+        setResponse(generatedText);
+    } catch (error) {
+        console.error("Failed to generate AI response:", error);
+        toast({
+            variant: "destructive",
+            title: "Erreur de génération",
+            description: "Impossible de générer une réponse pour le moment.",
+        });
+    }
     setIsGenerating(false);
   };
 
