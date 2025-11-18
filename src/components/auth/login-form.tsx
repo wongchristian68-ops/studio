@@ -3,7 +3,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { OAuthButtons } from "./oauth-buttons";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function LoginForm() {
@@ -35,17 +34,6 @@ export function LoginForm() {
         </Button>
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
-        <div className="relative w-full">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">
-              Ou continuer avec
-            </span>
-          </div>
-        </div>
-        <OAuthButtons />
         <div className="mt-4 text-center text-sm">
           Vous n'avez pas de compte ?{" "}
           <Link href="/signup" className="underline">
