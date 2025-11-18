@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 
@@ -32,6 +34,9 @@ export function Header() {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="right">
+                    <SheetHeader>
+                      <SheetTitle className="sr-only">Menu</SheetTitle>
+                    </SheetHeader>
                     <div className="grid gap-4 py-6">
                          <Link href="/" className="flex items-center gap-2 font-bold text-lg mb-4">
                             <UtensilsCrossed className="h-6 w-6 text-primary" />
