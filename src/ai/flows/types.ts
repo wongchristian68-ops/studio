@@ -7,3 +7,9 @@ export const GenerateReviewResponseInputSchema = z.object({
   comment: z.string().describe('The comment the customer wrote.'),
 });
 export type GenerateReviewResponseInput = z.infer<typeof GenerateReviewResponseInputSchema>;
+
+
+export const TextToSpeechOutputSchema = z.object({
+    media: z.string().describe("The base64 encoded WAV audio data URI."),
+});
+export type TextToSpeechOutput = z.infer<typeof TextToSpeechOutputSchema>;
