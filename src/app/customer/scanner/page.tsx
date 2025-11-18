@@ -1,31 +1,65 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import jsQR from "jsqr";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { QrCode, CameraOff } from "lucide-react";
+import { QrCode, CameraOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import { logStampActivity } from "@/lib/activity-log";
 
-
 export default function ScannerPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const animationFrameId = useRef<number>();
 
-   useEffect(() => {
+  const scanQrCode = useCallback(() => {
+    if (isLoading || !isScanning) return;
+    
+    if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+
+      if (context) {
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert",
+        });
+
+        if (code) {
+          handleValidation(code.data);
+          return; // Stop scanning once a code is found
+        }
+      }
+    }
+    animationFrameId.current = requestAnimationFrame(scanQrCode);
+  }, [isLoading, isScanning]);
+
+
+  useEffect(() => {
     let stream: MediaStream | null = null;
     const enableCamera = async () => {
+      setIsLoading(true);
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         setHasCameraPermission(true);
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          videoRef.current.onloadedmetadata = () => {
+             animationFrameId.current = requestAnimationFrame(scanQrCode);
+          };
         }
       } catch (error) {
         console.error("Error accessing camera:", error);
@@ -36,50 +70,81 @@ export default function ScannerPage() {
           title: "Accès à la caméra refusé",
           description: "Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.",
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
     if (isScanning) {
       enableCamera();
+    } else {
+       if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
     }
 
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
     };
-  }, [isScanning, toast]);
+  }, [isScanning, toast, scanQrCode]);
 
   const handleScanClick = () => {
     setIsScanning(true);
   };
   
-  const handleValidation = () => {
-    // In a real app, we'd validate the QR code content. Here we simulate success.
-    const user = sessionStorage.getItem('loggedInUser');
-    if (user) {
-        const parsedUser = JSON.parse(user);
-        const loyaltySettingsStr = localStorage.getItem('loyaltySettings');
-        const loyaltySettings = loyaltySettingsStr ? JSON.parse(loyaltySettingsStr) : { stampCount: 10 };
-        const stampCount = loyaltySettings.stampCount || 10;
-        
-        const currentStamps = parseInt(localStorage.getItem(`stamps_${parsedUser.phone}`) || '0', 10);
-        
-        let newStampCount = currentStamps + 1;
-        
-        localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
-        logStampActivity();
+  const handleValidation = (scannedData: string) => {
+    setIsLoading(true);
+    const storedQrDataStr = localStorage.getItem('loyaltyQrCode');
+    
+    if (!storedQrDataStr) {
+      toast({
+        variant: "destructive",
+        title: "Code QR invalide",
+        description: "Aucun QR code valide n'est configuré par le restaurateur."
+      });
+      setIsLoading(false);
+      setIsScanning(false);
+      return;
+    }
+    
+    const storedQrData = JSON.parse(storedQrDataStr);
+    
+    if (scannedData === storedQrData.value && storedQrData.expires > Date.now()) {
+      const user = sessionStorage.getItem('loggedInUser');
+      if (user) {
+          const parsedUser = JSON.parse(user);
+          let newStampCount = (parseInt(localStorage.getItem(`stamps_${parsedUser.phone}`) || '0', 10)) + 1;
+          localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
+          logStampActivity();
+      }
+      
+      toast({
+          title: "Tampon validé !",
+          description: "Vous avez bien reçu votre tampon de fidélité."
+      });
+
+      setTimeout(() => {
+        router.push('/customer');
+      }, 1000);
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Code QR invalide ou expiré",
+            description: "Veuillez scanner un code valide fourni par le restaurateur."
+        });
+        // Allow scanning again
+         setTimeout(() => {
+             setIsLoading(false);
+             animationFrameId.current = requestAnimationFrame(scanQrCode);
+         }, 2000);
     }
     
     setIsScanning(false);
-    toast({
-        title: "Tampon validé !",
-        description: "Vous avez bien reçu votre tampon de fidélité."
-    });
-
-    setTimeout(() => {
-      router.push('/customer');
-    }, 1000);
   }
 
   const handleCancel = () => {
@@ -103,15 +168,21 @@ export default function ScannerPage() {
             {isScanning ? (
               <div className="relative w-full h-full">
                 <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-                {hasCameraPermission === false && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white p-4">
-                    <CameraOff className="h-12 w-12 mb-4" />
-                     <Alert variant="destructive">
-                        <AlertTitle>Accès Caméra Requis</AlertTitle>
-                        <AlertDescription>
-                          Veuillez autoriser l'accès à la caméra pour utiliser cette fonctionnalité.
-                        </AlertDescription>
-                      </Alert>
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
+                {(hasCameraPermission === false || isLoading) && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white p-4">
+                    {isLoading && <Loader2 className="h-12 w-12 mb-4 animate-spin" />}
+                    {hasCameraPermission === false && !isLoading && (
+                        <>
+                            <CameraOff className="h-12 w-12 mb-4" />
+                            <Alert variant="destructive">
+                                <AlertTitle>Accès Caméra Requis</AlertTitle>
+                                <AlertDescription>
+                                  Veuillez autoriser l'accès à la caméra pour utiliser cette fonctionnalité.
+                                </AlertDescription>
+                            </Alert>
+                        </>
+                    )}
                   </div>
                 )}
                  <div className="absolute inset-2 border-2 border-dashed border-primary rounded-lg opacity-75"></div>
@@ -127,7 +198,7 @@ export default function ScannerPage() {
           ) : (
               <div className="w-full flex flex-col sm:flex-row gap-2">
                   <Button variant="outline" className="w-full" onClick={handleCancel}>Annuler</Button>
-                  <Button className="w-full" onClick={handleValidation} disabled={hasCameraPermission === false}>Valider le tampon</Button>
+                  <Button className="w-full" disabled>Validation en cours...</Button>
               </div>
           )}
         </CardFooter>
