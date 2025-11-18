@@ -10,12 +10,6 @@ import { useEffect, useState } from "react";
 import type { Referral } from "@/lib/types";
 import { Alert, AlertDescription } from "../ui/alert";
 
-const QrCodeSvg = () => (
-    <svg viewBox="0 0 100 100" className="w-full h-full rounded-md">
-        <path fill="currentColor" d="M0 0h30v30H0zM10 10h10v10H10zM40 0h30v30H40zM50 10h10v10H50zM70 0h30v30H70zM80 10h10v10H80zM0 40h30v30H0zM10 50h10v10H10zM0 70h30v30H0zM10 80h10v10H10zM40 70h30v30H40zM50 80h10v10H50zM70 40h30v30H70zM70 70h30v30H70zM80 80h10v10H80zM40 40h10v10H40zM50 50h10v10H50zM40 60h10v10H40zM60 40h10v10H60zM60 60h10v10H60zM45 25h10v10H45zM25 45h10v10H25zM25 25h10v10H25z"/>
-    </svg>
-)
-
 const REFERRAL_REWARD_POINTS = 2; // e.g., 2 bonus stamps
 
 export function ReferralCard() {
@@ -143,13 +137,10 @@ export function ReferralCard() {
                             </AlertDescription>
                         </Alert>
                     )}
-                    <div className="p-4 border rounded-lg bg-muted flex justify-center">
-                        <div className="w-24 h-24 text-foreground">
-                            <QrCodeSvg />
-                        </div>
-                    </div>
                     <div className="flex items-center space-x-2">
-                        <Input value={referralCode} readOnly />
+                         <div className="flex-grow p-2 border rounded-md bg-muted text-center font-mono text-lg tracking-widest">
+                            {referralCode || '...'}
+                        </div>
                         <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copier le code de parrainage" disabled={!referralCode}>
                             <Copy className="h-4 w-4" />
                         </Button>
@@ -166,7 +157,7 @@ export function ReferralCard() {
                         <Input 
                             placeholder="CODE-AMI" 
                             value={enteredCode}
-                            onChange={(e) => setEnteredCode(e.target.value)}
+                            onChange={(e) => setEnteredCode(e.target.value.toUpperCase())}
                         />
                         <Button type="submit">Valider</Button>
                     </form>
