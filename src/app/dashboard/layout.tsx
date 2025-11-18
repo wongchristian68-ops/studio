@@ -1,4 +1,8 @@
+
+'use client';
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Bell,
   Home,
@@ -35,6 +39,17 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const pageTitles: { [key: string]: string } = {
+    '/dashboard': 'Aperçu',
+    '/dashboard/loyalty': 'Programme de fidélité',
+    '/dashboard/referrals': 'Parrainages',
+    '/dashboard/reviews': 'Avis',
+    '/dashboard/settings': 'Paramètres',
+  }
+  const title = pageTitles[pathname] || 'Aperçu';
+
+
   return (
     <SidebarProvider>
       <div className="min-h-screen w-full flex bg-muted/40">
@@ -48,7 +63,7 @@ export default function DashboardLayout({
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Aperçu" isActive={true}>
+                <SidebarMenuButton asChild tooltip="Aperçu" isActive={pathname === '/dashboard'}>
                    <Link href="/dashboard">
                     <Home />
                     <span>Aperçu</span>
@@ -56,7 +71,7 @@ export default function DashboardLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Programme de fidélité">
+                <SidebarMenuButton asChild tooltip="Programme de fidélité" isActive={pathname === '/dashboard/loyalty'}>
                    <Link href="/dashboard/loyalty">
                     <QrCode />
                     <span>Programme de fidélité</span>
@@ -98,7 +113,7 @@ export default function DashboardLayout({
           <header className="flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
             <SidebarTrigger className="md:hidden"/>
             <div className="flex-1">
-              <h1 className="text-lg font-semibold font-headline">Aperçu</h1>
+              <h1 className="text-lg font-semibold font-headline">{title}</h1>
             </div>
             <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
