@@ -8,6 +8,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 
 const GenerateReviewResponseInputSchema = z.object({
@@ -48,7 +49,7 @@ const generateReviewResponseFlow = ai.defineFlow(
 
     const llmResponse = await ai.generate({
       prompt: prompt,
-      model: 'googleai/gemini-1.5-flash-latest',
+      model: googleAI('gemini-1.5-flash'),
       config: {
         maxOutputTokens: 200,
       },
