@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,13 +11,6 @@ import { useEffect, useState } from "react";
 import type { Referral } from "@/lib/types";
 import { Alert, AlertDescription } from "../ui/alert";
 import { logReferralBonusActivity, logReferralClaimActivity } from "@/lib/activity-log";
-
-const getPointsFromRewardString = (rewardString: string): number => {
-    if (!rewardString) return 0;
-    const match = rewardString.match(/\d+/);
-    return match ? parseInt(match[0], 10) : 0;
-};
-
 
 interface LoggedInUser {
     name: string;
@@ -30,9 +24,9 @@ export function ReferralCard() {
     const [referralCode, setReferralCode] = useState<string>('...');
     const [enteredCode, setEnteredCode] = useState("");
     const [currentUser, setCurrentUser] = useState<LoggedInUser | null>(null);
-    const [pendingReferralRewards, setPendingReferralRewards] = useState(0);
-    const [referralRewardDescription, setReferralRewardDescription] = useState("des points bonus");
-    const [referredRewardDescription, setReferredRewardDescription] = useState("des points bonus");
+    const [pendingReferralRewards, setPendingReferralRewards] = useState<string[]>([]);
+    const [referralRewardDescription, setReferralRewardDescription] = useState("un cadeau");
+    const [referredRewardDescription, setReferredRewardDescription] = useState("un cadeau");
     
     const fetchUserData = () => {
         const userStr = sessionStorage.getItem('loggedInUser');
@@ -43,16 +37,15 @@ export function ReferralCard() {
                 setReferralCode(parsedUser.referralCode || 'N/A');
 
                 const rewardsKey = `pending_referral_rewards_${parsedUser.phone}`;
-                const pendingRewards = parseInt(localStorage.getItem(rewardsKey) || '0', 10);
+                const pendingRewards: string[] = JSON.parse(localStorage.getItem(rewardsKey) || '[]');
                 setPendingReferralRewards(pendingRewards);
 
                 const referralSettingsStr = localStorage.getItem('referralSettings');
                  if (referralSettingsStr) {
                     const settings = JSON.parse(referralSettingsStr);
-                    setReferralRewardDescription(settings.referrerReward || "des points bonus");
-                    setReferredRewardDescription(settings.referredReward || "des points bonus");
+                    setReferralRewardDescription(settings.referrerReward || "un cadeau");
+                    setReferredRewardDescription(settings.referredReward || "un cadeau");
                 }
-
 
             } catch (error) {
                 console.error("Failed to parse user data from session storage", error);
@@ -105,20 +98,22 @@ export function ReferralCard() {
             }
 
             // --- Give reward to the new user (referred) ---
-            const pointsForReferred = getPointsFromRewardString(referredRewardDescription);
-            if (pointsForReferred > 0) {
-                const referredStampsKey = `stamps_${currentUser.phone}`;
-                const currentReferredStamps = parseInt(localStorage.getItem(referredStampsKey) || '0', 10);
-                const newStampCount = currentReferredStamps + pointsForReferred;
-                localStorage.setItem(referredStampsKey, newStampCount.toString());
-                logReferralBonusActivity(currentUser.phone, pointsForReferred);
+            if (referredRewardDescription) {
+                const referredRewardsKey = `referral_rewards_${currentUser.phone}`;
+                const existingReferredRewards: string[] = JSON.parse(localStorage.getItem(referredRewardsKey) || '[]');
+                existingReferredRewards.push(referredRewardDescription);
+                localStorage.setItem(referredRewardsKey, JSON.stringify(existingReferredRewards));
+                logReferralBonusActivity(currentUser.phone, referredRewardDescription);
             }
             localStorage.setItem(alreadyReferredKey, 'true'); // Mark that user has used a referral code
             
             // --- Give reward to the referrer (pending) ---
-            const referrerRewardsKey = `pending_referral_rewards_${referrer.phone}`;
-            const currentPendingRewards = parseInt(localStorage.getItem(referrerRewardsKey) || '0', 10);
-            localStorage.setItem(referrerRewardsKey, (currentPendingRewards + 1).toString());
+            if(referralRewardDescription) {
+                const referrerPendingRewardsKey = `pending_referral_rewards_${referrer.phone}`;
+                const currentPendingRewards: string[] = JSON.parse(localStorage.getItem(referrerPendingRewardsKey) || '[]');
+                currentPendingRewards.push(referralRewardDescription);
+                localStorage.setItem(referrerPendingRewardsKey, JSON.stringify(currentPendingRewards));
+            }
 
             // --- Log referral activity ---
             const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
@@ -134,7 +129,7 @@ export function ReferralCard() {
 
             toast({
                 title: "Code de parrainage validé !",
-                description: `Vous avez reçu votre récompense : ${referredRewardDescription} !`
+                description: `Vous avez reçu une nouvelle récompense : "${referredRewardDescription}" !`
             });
             
             // --- Update UI ---
@@ -151,25 +146,28 @@ export function ReferralCard() {
         }
     }
 
-    const handleClaimReward = () => {
-        if (!currentUser || pendingReferralRewards <= 0) return;
+    const handleClaimRewards = () => {
+        if (!currentUser || pendingReferralRewards.length <= 0) return;
 
-        const pointsPerReward = getPointsFromRewardString(referralRewardDescription);
-        const totalStampsToAdd = pendingReferralRewards * pointsPerReward;
+        // Move rewards from pending to actual rewards list
+        const rewardsToClaim = pendingReferralRewards;
+        const rewardsKey = `referral_rewards_${currentUser.phone}`;
+        const existingRewards: string[] = JSON.parse(localStorage.getItem(rewardsKey) || '[]');
+        const updatedRewards = [...existingRewards, ...rewardsToClaim];
+        localStorage.setItem(rewardsKey, JSON.stringify(updatedRewards));
+        
+        // Log each claimed reward
+        rewardsToClaim.forEach(rewardDesc => {
+            logReferralClaimActivity(currentUser.phone, rewardDesc);
+        });
 
-        if (totalStampsToAdd > 0) {
-            const stampsKey = `stamps_${currentUser.phone}`;
-            const currentStamps = parseInt(localStorage.getItem(stampsKey) || '0', 10);
-            localStorage.setItem(stampsKey, (currentStamps + totalStampsToAdd).toString());
-            logReferralClaimActivity(currentUser.phone, totalStampsToAdd);
-        }
-
-        const rewardsKey = `pending_referral_rewards_${currentUser.phone}`;
-        localStorage.setItem(rewardsKey, '0');
+        // Clear pending rewards
+        const pendingRewardsKey = `pending_referral_rewards_${currentUser.phone}`;
+        localStorage.setItem(pendingRewardsKey, '[]');
 
         toast({
             title: "Récompenses récupérées !",
-            description: `Vous avez reçu ${totalStampsToAdd} tampon(s) bonus.`
+            description: `Vous avez ${rewardsToClaim.length} nouvelle(s) récompense(s) disponible(s) dans votre section cadeaux.`
         });
         
         // Update UI
@@ -185,14 +183,14 @@ export function ReferralCard() {
                     <CardDescription>Partagez votre code et obtenez tous les deux une récompense !</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {pendingReferralRewards > 0 && (
+                    {pendingReferralRewards.length > 0 && (
                          <Alert className="border-green-500 bg-green-50 text-green-800 dark:bg-green-900/50 dark:text-green-300">
                              <Gift className="h-4 w-4 !text-green-600" />
                             <AlertDescription className="flex justify-between items-center">
                                 <span>
-                                    Vous avez {pendingReferralRewards} récompense{pendingReferralRewards > 1 ? 's' : ''} de parrainage en attente !
+                                    Vous avez {pendingReferralRewards.length} récompense{pendingReferralRewards.length > 1 ? 's' : ''} de parrainage en attente !
                                 </span>
-                                <Button size="sm" variant="outline" onClick={handleClaimReward} className="bg-background/80 hover:bg-background">Récupérer</Button>
+                                <Button size="sm" variant="outline" onClick={handleClaimRewards} className="bg-background/80 hover:bg-background">Récupérer</Button>
                             </AlertDescription>
                         </Alert>
                     )}
@@ -210,7 +208,7 @@ export function ReferralCard() {
             <Card>
                 <CardHeader>
                     <CardTitle>Utiliser un code</CardTitle>
-                    <CardDescription>Un ami vous a parrainé ? Entrez son code ici pour recevoir votre cadeau de bienvenue : <span className="font-semibold text-foreground">{referredRewardDescription}</span>.</CardDescription>
+                    <CardDescription>Un ami vous a parrainé ? Entrez son code ici pour recevoir votre cadeau : <span className="font-semibold text-foreground">{referredRewardDescription}</span>.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleValidateReferral} className="flex items-center space-x-2">

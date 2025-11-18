@@ -3,7 +3,7 @@ export type ActivityEvent = {
     type: 'stamp' | 'reward' | 'referral_claim' | 'referral_bonus';
     date: string; // ISO 8601 format
     userPhone: string;
-    points?: number;
+    description?: string;
 };
 
 const ACTIVITY_LOG_KEY = 'activityLog';
@@ -27,7 +27,7 @@ export function setActivityLog(log: ActivityEvent[]): void {
 
 
 // Function to add a new activity event to the log
-function logActivity(type: ActivityEvent['type'], userPhone: string, details: { points?: number } = {}): void {
+function logActivity(type: ActivityEvent['type'], userPhone: string, details: { description?: string } = {}): void {
     if (typeof window === 'undefined') {
         return;
     }
@@ -54,11 +54,11 @@ export function logRewardClaimActivity(userPhone: string): void {
 }
 
 // Function to log when a referrer claims their referral reward
-export function logReferralClaimActivity(userPhone: string, points: number): void {
-    logActivity('referral_claim', userPhone, { points });
+export function logReferralClaimActivity(userPhone: string, rewardDescription: string): void {
+    logActivity('referral_claim', userPhone, { description: rewardDescription });
 }
 
 // Function to log when a referred user gets their initial bonus
-export function logReferralBonusActivity(userPhone: string, points: number): void {
-    logActivity('referral_bonus', userPhone, { points });
+export function logReferralBonusActivity(userPhone: string, rewardDescription: string): void {
+    logActivity('referral_bonus', userPhone, { description: rewardDescription });
 }

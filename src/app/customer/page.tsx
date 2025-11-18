@@ -35,11 +35,11 @@ const getHistoryDescription = (event: ActivityEvent, settings: LoyaltySettings |
         case 'stamp':
             return 'Tampon validé';
         case 'reward':
-            return `Récompense obtenue (${settings?.rewardDescription || ''})`;
+            return `Récompense de fidélité obtenue (${settings?.rewardDescription || ''})`;
         case 'referral_claim':
-            return `Récompense de parrainage récupérée`;
+            return `Récompense de parrainage récupérée : "${event.description}"`;
         case 'referral_bonus':
-            return `Bonus de parrainage reçu`;
+            return `Bonus de parrainage reçu : "${event.description}"`;
         default:
             return 'Activité inconnue';
     }
@@ -109,7 +109,7 @@ export default function CustomerPage() {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Gift className="h-5 w-5 text-primary"/>
-                                Prochaine Récompense
+                                Prochaine Récompense de Fidélité
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -140,9 +140,10 @@ export default function CustomerPage() {
                                             <TableCell>{format(new Date(item.date), 'dd/MM/yyyy HH:mm', { locale: fr })}</TableCell>
                                             <TableCell>{getHistoryDescription(item, loyaltySettings)}</TableCell>
                                             <TableCell className="text-right font-medium">
-                                                {item.type === 'stamp' ? '+1' : 
-                                                 item.type === 'referral_claim' || item.type === 'referral_bonus' ? `+${item.points}` : 
-                                                 item.type === 'reward' ? `-${loyaltySettings?.stampCount}` : ''}
+                                                {item.type === 'stamp' ? '+1' :
+                                                 item.type === 'reward' ? `-${loyaltySettings?.stampCount}`: 
+                                                 (item.type === 'referral_claim' || item.type === 'referral_bonus') ? 'Cadeau' : ''
+                                                }
                                             </TableCell>
                                         </TableRow>
                                     ))}

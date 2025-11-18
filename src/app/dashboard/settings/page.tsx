@@ -118,8 +118,9 @@ export default function SettingsPage() {
         // Delete loyalty stamps
         localStorage.removeItem(`stamps_${customerPhone}`);
 
-        // Delete pending referral rewards
+        // Delete referral rewards (pending and claimed)
         localStorage.removeItem(`pending_referral_rewards_${customerPhone}`);
+        localStorage.removeItem(`referral_rewards_${customerPhone}`);
         
         // Delete referral code used flag
         localStorage.removeItem(`has_used_referral_${customerPhone}`);
@@ -198,7 +199,7 @@ export default function SettingsPage() {
       </Card>
        <Card>
         <CardHeader>
-            <CardTitle>Programme de fidélité</CardTitle>
+            <CardTitle>Programme de fidélité (Tampons)</CardTitle>
             <CardDescription>
                 Définissez le nombre de tampons nécessaires pour obtenir une récompense et ce qu'est la récompense.
             </CardDescription>
@@ -218,7 +219,7 @@ export default function SettingsPage() {
                 />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="reward-description">Description de la récompense</Label>
+                <Label htmlFor="reward-description">Description de la récompense de fidélité</Label>
                 <Input 
                     id="reward-description" 
                     type="text"
@@ -229,7 +230,7 @@ export default function SettingsPage() {
             </div>
         </CardContent>
         <CardFooter>
-            <Button onClick={handleLoyaltySettingsSave}>Sauvegarder les paramètres de fidélité</Button>
+            <Button onClick={handleLoyaltySettingsSave}>Sauvegarder les paramètres</Button>
         </CardFooter>
       </Card>
       <Card>

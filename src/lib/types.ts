@@ -1,4 +1,5 @@
 
+
 export type Review = {
   id: string;
   customerName: string;
@@ -25,5 +26,5 @@ export type ActivityEvent = {
     type: 'stamp' | 'reward' | 'referral_claim' | 'referral_bonus';
     date: string; // ISO 8601 format
     userPhone: string;
-    points?: number;
+    description?: string;
 };
