@@ -37,8 +37,16 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { referralActivity } from "@/lib/data";
 
-const notifications: any[] = [];
+interface Notification {
+  type: 'user' | 'reward';
+  content: string;
+  time: string;
+  avatarFallback: React.ReactNode;
+}
+
 
 export default function DashboardLayout({
   children,
@@ -46,6 +54,39 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    // In a real app, this would come from a server. Here we simulate it.
+    const newNotifications: Notification[] = [];
+
+    // Notifications for new users
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const newCustomers = users.filter((u: any) => u.role === 'customer');
+    
+    if (newCustomers.length > 0) {
+      newNotifications.push({
+        type: 'user',
+        content: `Vous avez ${newCustomers.length} nouveau(x) client(s) !`,
+        time: 'Aujourd\'hui',
+        avatarFallback: <UserPlus className="h-4 w-4" />
+      });
+    }
+
+    // Notifications for referrals
+    const completedReferrals = referralActivity.filter(r => r.status === 'Complété');
+    if (completedReferrals.length > 0) {
+      newNotifications.push({
+        type: 'reward',
+        content: `${completedReferrals.length} parrainage(s) ont été complétés.`,
+        time: 'Cette semaine',
+        avatarFallback: <Gift className="h-4 w-4" />
+      });
+    }
+
+    setNotifications(newNotifications);
+  }, []);
+
   const pageTitles: { [key: string]: string } = {
     '/dashboard': 'Aperçu',
     '/dashboard/loyalty-qr': 'Générer QR Code',
@@ -139,7 +180,7 @@ export default function DashboardLayout({
                     <DropdownMenuItem key={index} className="flex items-start gap-3">
                       <Avatar className="h-8 w-8 border">
                          <AvatarFallback>
-                           {notif.type === 'user' ? <UserPlus className="h-4 w-4" /> : <Gift className="h-4 w-4" />}
+                           {notif.avatarFallback}
                          </AvatarFallback>
                        </Avatar>
                        <div className="grid gap-0.5">
