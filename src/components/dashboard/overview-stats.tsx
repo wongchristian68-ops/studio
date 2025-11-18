@@ -4,20 +4,26 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, QrCode, Gift, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { stats as initialStats } from "@/lib/data";
+import { stats as initialStats, referralActivity } from "@/lib/data";
 
 export function OverviewStats() {
   const [stats, setStats] = useState(initialStats);
 
   useEffect(() => {
-    // In a real app, this would be an API call. Here we simulate it with localStorage.
+    // In a real app, this would be an API call. Here we simulate it with localStorage and data files.
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const totalClients = users.filter((u: any) => u.role === 'customer').length;
     
+    const completedReferrals = referralActivity.filter(r => r.status === 'Complété').length;
+
     // The other stats are hardcoded in data.ts for now, so we just update the one we can calculate.
     setStats(prevStats => ({
       ...prevStats,
       totalClients,
+      activeReferrals: completedReferrals,
+      // For demonstration, let's make other stats feel a bit more dynamic
+      stampsValidated: 150 + totalClients * 3,
+      rewardsClaimed: 10 + completedReferrals * 2,
     }));
 
   }, []);
