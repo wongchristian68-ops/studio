@@ -57,7 +57,7 @@ export default function DashboardLayout({
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Programme de fidélité">
-                   <Link href="#">
+                   <Link href="/dashboard/loyalty">
                     <QrCode />
                     <span>Programme de fidélité</span>
                   </Link>
