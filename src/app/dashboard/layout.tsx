@@ -138,7 +138,9 @@ export default function DashboardLayout({
                 <DropdownMenuItem>Paramètres</DropdownMenuItem>
                 <DropdownMenuItem>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/">Déconnexion</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/">Déconnexion</Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </header>

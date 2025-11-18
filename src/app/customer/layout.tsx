@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { UtensilsCrossed, User, Gift, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -52,7 +53,9 @@ function CustomerHeader() {
               <DropdownMenuItem><User className="mr-2 h-4 w-4" />Profil</DropdownMenuItem>
               <DropdownMenuItem><Gift className="mr-2 h-4 w-4" />Mes récompenses</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild><Link href="/"><LogOut className="mr-2 h-4 w-4" />Déconnexion</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/"><LogOut className="mr-2 h-4 w-4" />Déconnexion</Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
