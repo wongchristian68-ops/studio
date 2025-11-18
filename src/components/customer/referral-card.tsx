@@ -11,6 +11,7 @@ import type { Referral } from "@/lib/types";
 import { Alert, AlertDescription } from "../ui/alert";
 
 const getPointsFromRewardString = (rewardString: string): number => {
+    if (!rewardString) return 0;
     const match = rewardString.match(/\d+/);
     return match ? parseInt(match[0], 10) : 0;
 };
@@ -30,6 +31,7 @@ export function ReferralCard() {
     const [currentUser, setCurrentUser] = useState<LoggedInUser | null>(null);
     const [pendingReferralRewards, setPendingReferralRewards] = useState(0);
     const [referralRewardDescription, setReferralRewardDescription] = useState("des points bonus");
+    const [referredRewardDescription, setReferredRewardDescription] = useState("des points bonus");
     
     const fetchUserData = () => {
         const userStr = sessionStorage.getItem('loggedInUser');
@@ -46,8 +48,8 @@ export function ReferralCard() {
                 const referralSettingsStr = localStorage.getItem('referralSettings');
                  if (referralSettingsStr) {
                     const settings = JSON.parse(referralSettingsStr);
-                    // Assuming both referrer and referred get the same reward for simplicity now
                     setReferralRewardDescription(settings.referrerReward || "des points bonus");
+                    setReferredRewardDescription(settings.referredReward || "des points bonus");
                 }
 
 
@@ -102,7 +104,7 @@ export function ReferralCard() {
 
             toast({
                 title: "Code de parrainage validé !",
-                description: `Une récompense est en attente pour vous et ${referrer.name} !`
+                description: `Vous et ${referrer.name} recevrez bientôt votre récompense : ${referredRewardDescription} !`
             });
             
             fetchUserData();
@@ -173,7 +175,7 @@ export function ReferralCard() {
             <Card>
                 <CardHeader>
                     <CardTitle>Utiliser un code</CardTitle>
-                    <CardDescription>Un ami vous a parrainé ? Entrez son code ici.</CardDescription>
+                    <CardDescription>Un ami vous a parrainé ? Entrez son code ici pour recevoir {referredRewardDescription}.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleValidateReferral} className="flex items-center space-x-2">
