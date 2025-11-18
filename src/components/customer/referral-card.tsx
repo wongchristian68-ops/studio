@@ -77,19 +77,33 @@ export function ReferralCard() {
     
     const handleValidateReferral = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!currentUser || !enteredCode) return;
+        if (!currentUser || !enteredCode.trim()) return;
 
         const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
         const referrer = allUsers.find((user: any) => user.referralCode === enteredCode.trim() && user.phone !== currentUser.phone);
 
         if (referrer) {
-            const referredRewardsKey = `pending_referral_rewards_${currentUser.phone}`;
-            const currentReferredRewards = parseInt(localStorage.getItem(referredRewardsKey) || '0', 10);
-            localStorage.setItem(referredRewardsKey, (currentReferredRewards + 1).toString());
+            // Check if user has already used a referral code
+            const alreadyReferredKey = `has_used_referral_${currentUser.phone}`;
+            if (localStorage.getItem(alreadyReferredKey)) {
+                toast({
+                    variant: "destructive",
+                    title: "Code déjà utilisé",
+                    description: "Vous avez déjà utilisé un code de parrainage."
+                });
+                return;
+            }
+
+            const pointsForReferred = getPointsFromRewardString(referredRewardDescription);
+            const referredStampsKey = `stamps_${currentUser.phone}`;
+            const currentReferredStamps = parseInt(localStorage.getItem(referredStampsKey) || '0', 10);
+            localStorage.setItem(referredStampsKey, (currentReferredStamps + pointsForReferred).toString());
+            localStorage.setItem(alreadyReferredKey, 'true'); // Mark that user has used a referral code
             
-            const referrerRewardsKey = `pending_referral_rewards_${referrer.phone}`;
-            const currentReferrerRewards = parseInt(localStorage.getItem(referrerRewardsKey) || '0', 10);
-            localStorage.setItem(referrerRewardsKey, (currentReferrerRewards + 1).toString());
+            const pointsForReferrer = getPointsFromRewardString(referralRewardDescription);
+            const referrerStampsKey = `stamps_${referrer.phone}`;
+            const currentReferrerStamps = parseInt(localStorage.getItem(referrerStampsKey) || '0', 10);
+            localStorage.setItem(referrerStampsKey, (currentReferrerStamps + pointsForReferrer).toString());
             
             const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
             const newReferral: Referral = {
@@ -104,12 +118,12 @@ export function ReferralCard() {
 
             toast({
                 title: "Code de parrainage validé !",
-                description: `Vous et ${referrer.name} recevrez bientôt votre récompense : ${referredRewardDescription} !`
+                description: `Vous et ${referrer.name} avez reçu votre récompense : ${referredRewardDescription} !`
             });
             
             fetchUserData();
             setEnteredCode("");
-            window.dispatchEvent(new Event('storage'));
+            window.dispatchEvent(new Event('storage')); // Trigger update for loyalty card
 
         } else {
             toast({
