@@ -23,12 +23,12 @@ export function OverviewStats() {
     
     const completedReferrals = referralActivity.filter(r => r.status === 'Complété').length;
 
-    // For demonstration, we simulate some stats based on the number of clients and referrals.
+    // Calculate stats based on available data
     setStats({
       totalClients,
       activeReferrals: completedReferrals,
-      stampsValidated: totalClients * 5 + completedReferrals * 10, // Example calculation
-      rewardsClaimed: Math.floor(totalClients / 2) + completedReferrals, // Example calculation
+      stampsValidated: 0, // Resetting to 0 as there is no data source
+      rewardsClaimed: 0, // Resetting to 0 as there is no data source
     });
 
   }, []);
