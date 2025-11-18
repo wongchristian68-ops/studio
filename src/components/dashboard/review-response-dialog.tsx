@@ -46,12 +46,16 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
         comment: review.comment,
       });
       setResponse(generatedText);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      const errorMessage = error.message && error.message.includes('overloaded')
+        ? 'Le service est actuellement surchargé. Veuillez réessayer dans quelques instants.'
+        : 'Impossible de générer une réponse pour le moment.';
+
       toast({
         variant: 'destructive',
         title: "Erreur de l'IA",
-        description: 'Impossible de générer une réponse pour le moment.',
+        description: errorMessage,
       });
     } finally {
       setIsGenerating(false);
