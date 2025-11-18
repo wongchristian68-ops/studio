@@ -8,17 +8,38 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 export function LoginForm() {
   const [role, setRole] = useState("customer");
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (role === 'restaurateur') {
-      router.push('/dashboard');
+    const formData = new FormData(e.currentTarget);
+    const phone = formData.get("phone") as string;
+    
+    // Simulate checking if user exists in localStorage
+    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    const foundUser = existingUsers.find((user: any) => user.phone === phone && user.role === role);
+
+    if (foundUser) {
+      toast({
+        title: "Connexion réussie !",
+        description: "Vous allez être redirigé.",
+      });
+      if (role === 'restaurateur') {
+        router.push('/dashboard');
+      } else {
+        router.push('/customer');
+      }
     } else {
-      router.push('/customer');
+      toast({
+        variant: "destructive",
+        title: "Erreur de connexion",
+        description: "Aucun compte trouvé avec ce numéro de téléphone et ce rôle. Veuillez vous inscrire.",
+      });
     }
   };
 
@@ -32,7 +53,7 @@ export function LoginForm() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="phone">Numéro de téléphone</Label>
-            <Input id="phone" type="tel" placeholder="+33 6 12 34 56 78" required />
+            <Input id="phone" name="phone" type="tel" placeholder="+33 6 12 34 56 78" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="role">Je me connecte en tant que...</Label>
