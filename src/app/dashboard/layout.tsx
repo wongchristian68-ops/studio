@@ -135,8 +135,12 @@ export default function DashboardLayout({
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Paramètres</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings">Paramètres</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="mailto:support@restoconnect.com">Support</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/">Déconnexion</Link>
