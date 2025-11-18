@@ -1,10 +1,11 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
+import QRCode from "react-qr-code";
 
 // Simple pseudo-random string generator
 const generateRandomString = (length: number) => {
@@ -14,43 +15,6 @@ const generateRandomString = (length: number) => {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
-};
-
-// SVG QR Code component
-const QrCodeSvg = ({ value }: { value: string }) => {
-    // This is a placeholder for a real QR code library. 
-    // In a real app, you'd use a library to generate a proper QR code image from the value.
-    const pseudoData = useMemo(() => {
-        if (!value) return '';
-        const segments = [];
-        // A simple hashing function to create a visually "random" pattern based on the input string
-        let hash = 0;
-        for (let i = 0; i < value.length; i++) {
-            hash = (hash << 5) - hash + value.charCodeAt(i);
-            hash |= 0; // Convert to 32bit integer
-        }
-
-        for (let i = 0; i < 100; i++) {
-            // Use the hash to decide if a square should be drawn
-            if ((hash + i * value.charCodeAt(i % value.length)) % 3 < 2) {
-                const x = (i % 10) * 10;
-                const y = Math.floor(i / 10) * 10;
-                segments.push(`M${x} ${y}h10v10H${x}z`);
-            }
-        }
-        // Add finder patterns for a more QR-code-like look
-        segments.push("M0 0h30v30H0z M10 10h10v10H10z");
-        segments.push("M70 0h30v30H70z M80 10h10v10H80z");
-        segments.push("M0 70h30v30H0z M10 80h10v10H10z");
-        
-        return segments.join(' ');
-    }, [value]);
-
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-full rounded-md">
-      <path fill="currentColor" d={pseudoData} />
-    </svg>
-  );
 };
 
 
@@ -121,7 +85,12 @@ export function QrCodeGenerator() {
       <CardContent className="flex flex-col items-center gap-4">
         <div className="aspect-square w-full max-w-[250px] p-4 border rounded-lg bg-white text-black">
           {qrData && !isExpired ? (
-            <QrCodeSvg value={qrData.value} />
+            <QRCode
+              size={256}
+              style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+              value={qrData.value}
+              viewBox={`0 0 256 256`}
+            />
           ) : (
             <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground rounded-md">
               <p>Aucun code actif</p>
