@@ -28,11 +28,8 @@ export function ReferralCard() {
         if (user) {
             const parsedUser = JSON.parse(user);
             setCurrentUser(parsedUser);
-            // In a real app, user object would be fetched from a DB, but we get it from localStorage for this simulation
-            const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
-            const fullCurrentUser = allUsers.find((u:any) => u.phone === parsedUser.phone);
-            if (fullCurrentUser && fullCurrentUser.referralCode) {
-                setReferralCode(fullCurrentUser.referralCode);
+            if (parsedUser.referralCode) {
+                setReferralCode(parsedUser.referralCode);
             }
         }
     }, []);
