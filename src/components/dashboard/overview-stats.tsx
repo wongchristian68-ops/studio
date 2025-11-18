@@ -1,8 +1,27 @@
+
+'use client';
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, QrCode, Gift, UserPlus } from "lucide-react";
-import { stats } from "@/lib/data";
+import { useEffect, useState } from "react";
+import { stats as initialStats } from "@/lib/data";
 
 export function OverviewStats() {
+  const [stats, setStats] = useState(initialStats);
+
+  useEffect(() => {
+    // In a real app, this would be an API call. Here we simulate it with localStorage.
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const totalClients = users.filter((u: any) => u.role === 'customer').length;
+    
+    // The other stats are hardcoded in data.ts for now, so we just update the one we can calculate.
+    setStats(prevStats => ({
+      ...prevStats,
+      totalClients,
+    }));
+
+  }, []);
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
       <Card>

@@ -35,6 +35,13 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+
+const notifications = [
+  { type: 'user', content: 'Nouveau client inscrit: Marc D.', time: 'il y a 5 minutes' },
+  { type: 'referral', content: 'Pauline A. a parrainé un nouvel utilisateur.', time: 'il y a 2 heures' },
+];
 
 export default function DashboardLayout({
   children,
@@ -122,14 +129,37 @@ export default function DashboardLayout({
                 <Button variant="outline" size="icon" className="ml-auto h-8 w-8 relative">
                   <Bell className="h-4 w-4" />
                   <span className="sr-only">Activer/Désactiver les notifications</span>
+                  {notifications.length > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0">{notifications.length}</Badge>
+                  )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-80">
                 <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <div className="p-4 text-center text-sm text-muted-foreground">
-                  <p>Aucune nouvelle notification.</p>
-                </div>
+                {notifications.length > 0 ? (
+                  notifications.map((notif, index) => (
+                    <DropdownMenuItem key={index} className="flex items-start gap-3">
+                      <Avatar className="h-8 w-8 border">
+                         <AvatarFallback>
+                           {notif.type === 'user' ? <UserPlus className="h-4 w-4" /> : <Gift className="h-4 w-4" />}
+                         </AvatarFallback>
+                       </Avatar>
+                       <div className="grid gap-0.5">
+                         <p className="text-sm font-medium">{notif.content}</p>
+                         <p className="text-xs text-muted-foreground">{notif.time}</p>
+                       </div>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    <p>Aucune nouvelle notification.</p>
+                  </div>
+                )}
+                 <DropdownMenuSeparator />
+                 <DropdownMenuItem className="justify-center text-sm text-muted-foreground hover:text-foreground">
+                    Voir toutes les notifications
+                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
