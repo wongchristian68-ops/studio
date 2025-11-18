@@ -49,7 +49,7 @@ const generateReviewResponseFlow = ai.defineFlow(
 
     const llmResponse = await ai.generate({
       prompt: prompt,
-      model: googleAI.model('gemini-1.5-pro-latest'),
+      model: googleAI.model('gemini-pro'),
       config: {
         maxOutputTokens: 200,
       },
