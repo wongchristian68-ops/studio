@@ -23,7 +23,6 @@ export function OverviewStats() {
     
     const completedReferrals = referralActivity.filter(r => r.status === 'Complété').length;
 
-    // Calculate stats based on available data
     setStats({
       totalClients,
       activeReferrals: completedReferrals,
