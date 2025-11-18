@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Review } from '@/lib/types';
 import { generateReviewResponse } from '@/ai/flows/generate-review-response';
 import { Loader2 } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 interface ReviewResponseDialogProps {
   review: Review | null;
@@ -28,17 +29,20 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
   const { toast } = useToast();
   const [response, setResponse] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Reset response when a new review is selected
+    // Reset response and error when a new review is selected
     if (review) {
       setResponse('');
+      setError(null);
     }
   }, [review]);
 
   const handleGenerateResponse = async () => {
     if (!review) return;
     setIsGenerating(true);
+    setError(null);
     try {
       const generatedText = await generateReviewResponse({
         customerName: review.customerName,
@@ -46,17 +50,12 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
         comment: review.comment,
       });
       setResponse(generatedText);
-    } catch (error: any) {
-      console.error(error);
-      const errorMessage = error.message && (error.message.includes('overloaded') || error.message.includes('503'))
+    } catch (e: any) {
+      console.error(e);
+      const errorMessage = e.message && (e.message.includes('overloaded') || e.message.includes('503'))
         ? 'Le service est actuellement surchargé. Veuillez réessayer dans quelques instants.'
-        : 'Impossible de générer une réponse pour le moment.';
-
-      toast({
-        variant: 'destructive',
-        title: "Erreur de l'IA",
-        description: errorMessage,
-      });
+        : `Impossible de générer une réponse pour le moment. ${e.message || ''}`;
+      setError(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -82,6 +81,12 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          {error && (
+             <Alert variant="destructive">
+                <AlertTitle>Erreur de l'IA</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="italic text-muted-foreground border-l-4 pl-4">
             "{review.comment}"
           </div>

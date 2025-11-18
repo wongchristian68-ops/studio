@@ -37,7 +37,7 @@ const generateReviewResponseFlow = ai.defineFlow(
       - For mixed reviews (3 stars), thank them for the feedback, acknowledge any issues raised, and express a desire to improve.
       - For negative reviews (1-2 stars), apologize sincerely for their bad experience, take their feedback seriously, and offer to make things right. Invite them to contact you directly.
 
-      The response should be in French.
+      The response MUST be in French.
 
       Customer Name: ${input.customerName}
       Rating: ${input.rating} / 5 stars
