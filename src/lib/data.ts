@@ -1,4 +1,5 @@
-import type { Review, EngagementData } from './types';
+
+import type { Review, EngagementData, Referral } from './types';
 
 export const stats = {
   totalClients: 1254,
@@ -46,4 +47,11 @@ export const engagementData: EngagementData[] = [
   { month: 'Mai', stamps: 189, referrals: 48 },
   { month: 'Juin', stamps: 239, referrals: 38 },
   { month: 'Juil', stamps: 349, referrals: 43 },
+];
+
+export const referralActivity: Referral[] = [
+  { id: '1', referrer: 'Alice Johnson', referred: 'Eve Martin', date: '2024-07-21', status: 'Complété' },
+  { id: '2', referrer: 'Bob Williams', referred: 'Frank Miller', date: '2024-07-20', status: 'En attente' },
+  { id: '3', referrer: 'Diana Prince', referred: 'Grace Lee', date: '2024-07-19', status: 'Complété' },
+  { id: '4', referrer: 'Alice Johnson', referred: 'Heidi Turner', date: '2024-07-18', status: 'Expiré' },
 ];
