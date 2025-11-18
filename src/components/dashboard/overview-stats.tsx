@@ -26,12 +26,13 @@ export function OverviewStats() {
 
     const activityLog = getActivityLog();
     const stampsValidated = activityLog.filter(e => e.type === 'stamp').length;
+    const rewardsClaimed = activityLog.filter(e => e.type === 'reward').length;
 
     setStats({
       totalClients,
       activeReferrals: completedReferrals,
       stampsValidated,
-      rewardsClaimed: 0, // No data source for this yet
+      rewardsClaimed,
     });
 
   }, []);

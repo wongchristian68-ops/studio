@@ -8,6 +8,7 @@ import { Stamp, Award, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { logRewardClaimActivity } from "@/lib/activity-log";
 
 export function LoyaltyStatus() {
     const [currentStamps, setCurrentStamps] = useState(0);
@@ -59,6 +60,7 @@ export function LoyaltyStatus() {
             const newStampCount = currentStamps - stampsForReward;
             localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
             setCurrentStamps(newStampCount);
+            logRewardClaimActivity(); // Log the reward claim
 
             toast({
                 title: "Récompense réclamée !",
