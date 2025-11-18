@@ -20,3 +20,10 @@ export type Referral = {
   date: string;
   status: 'Complété' | 'En attente' | 'Expiré';
 };
+
+export type ActivityEvent = {
+    type: 'stamp' | 'reward' | 'referral_claim' | 'referral_bonus';
+    date: string; // ISO 8601 format
+    userPhone: string;
+    points?: number;
+};

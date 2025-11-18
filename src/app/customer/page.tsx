@@ -9,8 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Star, Gift } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const history: any[] = [];
+import type { ActivityEvent } from "@/lib/activity-log";
+import { getActivityLog } from "@/lib/activity-log";
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface LoggedInUser {
     name: string;
@@ -28,15 +30,34 @@ interface RestaurantProfile {
     address: string;
 }
 
+const getHistoryDescription = (event: ActivityEvent, settings: LoyaltySettings | null): string => {
+    switch(event.type) {
+        case 'stamp':
+            return 'Tampon validé';
+        case 'reward':
+            return `Récompense obtenue (${settings?.rewardDescription || ''})`;
+        case 'referral_claim':
+            return `Récompense de parrainage récupérée`;
+        case 'referral_bonus':
+            return `Bonus de parrainage reçu`;
+        default:
+            return 'Activité inconnue';
+    }
+};
+
 export default function CustomerPage() {
     const [user, setUser] = useState<LoggedInUser | null>(null);
     const [loyaltySettings, setLoyaltySettings] = useState<LoyaltySettings | null>(null);
     const [restaurantProfile, setRestaurantProfile] = useState<RestaurantProfile | null>(null);
+    const [history, setHistory] = useState<ActivityEvent[]>([]);
 
-    useEffect(() => {
+    const loadData = () => {
         const storedUser = sessionStorage.getItem('loggedInUser');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+            const userActivity = getActivityLog().filter(event => event.userPhone === parsedUser.phone);
+            setHistory(userActivity.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         }
         
         const storedLoyaltySettings = localStorage.getItem("loyaltySettings");
@@ -52,6 +73,14 @@ export default function CustomerPage() {
         } else {
             setRestaurantProfile({ name: "le restaurant", address: "" });
         }
+    };
+
+    useEffect(() => {
+        loadData();
+        window.addEventListener('storage', loadData);
+        return () => {
+            window.removeEventListener('storage', loadData);
+        };
     }, []);
 
     const handleReviewClick = () => {
@@ -85,7 +114,7 @@ export default function CustomerPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-lg font-medium text-center p-4 bg-secondary rounded-lg">
-                                {loyaltySettings.rewardDescription}
+                                {loyaltySettings.stampCount} tampons = {loyaltySettings.rewardDescription}
                             </p>
                         </CardContent>
                     </Card>
@@ -106,11 +135,15 @@ export default function CustomerPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {history.map(item => (
-                                        <TableRow key={item.id}>
-                                            <TableCell>{item.date}</TableCell>
-                                            <TableCell>{item.description}</TableCell>
-                                            <TableCell className="text-right font-medium">{item.points}</TableCell>
+                                    {history.map((item, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{format(new Date(item.date), 'dd/MM/yyyy HH:mm', { locale: fr })}</TableCell>
+                                            <TableCell>{getHistoryDescription(item, loyaltySettings)}</TableCell>
+                                            <TableCell className="text-right font-medium">
+                                                {item.type === 'stamp' ? '+1' : 
+                                                 item.type === 'referral_claim' || item.type === 'referral_bonus' ? `+${item.points}` : 
+                                                 item.type === 'reward' ? `-${loyaltySettings?.stampCount}` : ''}
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

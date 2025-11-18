@@ -21,6 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import type { Referral } from "@/lib/types";
+import { getActivityLog, setActivityLog } from "@/lib/activity-log";
 
 
 export default function SettingsPage() {
@@ -119,6 +120,9 @@ export default function SettingsPage() {
 
         // Delete pending referral rewards
         localStorage.removeItem(`pending_referral_rewards_${customerPhone}`);
+        
+        // Delete referral code used flag
+        localStorage.removeItem(`has_used_referral_${customerPhone}`);
 
         // Delete from referral activity history
         const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
@@ -127,11 +131,17 @@ export default function SettingsPage() {
         );
         localStorage.setItem('referralActivity', JSON.stringify(updatedReferralActivity));
         
+        // Delete from global activity log
+        const activityLog = getActivityLog();
+        const updatedActivityLog = activityLog.filter(event => event.userPhone !== customerPhone);
+        setActivityLog(updatedActivityLog);
+        
         toast({
             title: "Client supprimé",
             description: `Toutes les données du client avec le numéro ${customerPhone} ont été supprimées.`,
         });
         setCustomerPhone('');
+        window.dispatchEvent(new Event('storage'));
     } else {
         toast({
             variant: "destructive",

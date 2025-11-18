@@ -25,7 +25,12 @@ interface RestaurantProfile {
     address: string;
 }
 
+interface LoggedInUser {
+    phone: string;
+}
+
 export function LoyaltyStatus() {
+    const [currentUser, setCurrentUser] = useState<LoggedInUser | null>(null);
     const [currentStamps, setCurrentStamps] = useState(0);
     const [stampsForReward, setStampsForReward] = useState(10);
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -34,9 +39,10 @@ export function LoyaltyStatus() {
     const { toast } = useToast();
 
     const fetchLoyaltyData = () => {
-        const user = sessionStorage.getItem('loggedInUser');
-        if (user) {
-            const parsedUser = JSON.parse(user);
+        const userStr = sessionStorage.getItem('loggedInUser');
+        if (userStr) {
+            const parsedUser = JSON.parse(userStr);
+            setCurrentUser(parsedUser);
             const savedStamps = localStorage.getItem(`stamps_${parsedUser.phone}`);
             setCurrentStamps(savedStamps ? parseInt(savedStamps, 10) : 0);
         }
@@ -75,14 +81,12 @@ export function LoyaltyStatus() {
     const remainingStamps = isRewardAvailable ? 0 : stampsForReward - currentStamps;
 
     const handleClaimReward = () => {
-        const user = sessionStorage.getItem('loggedInUser');
-        if (user) {
-            const parsedUser = JSON.parse(user);
+        if (currentUser) {
             // This resets stamps after claiming one reward.
             const newStampCount = currentStamps - stampsForReward;
-            localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
+            localStorage.setItem(`stamps_${currentUser.phone}`, newStampCount.toString());
             setCurrentStamps(newStampCount);
-            logRewardClaimActivity(); // Log the reward claim
+            logRewardClaimActivity(currentUser.phone);
 
             toast({
                 title: "Récompense réclamée !",

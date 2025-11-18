@@ -22,6 +22,69 @@ export default function ScannerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const animationFrameId = useRef<number>();
 
+  const handleValidation = useCallback(async (scannedData: string) => {
+    setIsLoading(true);
+    setIsScanning(false);
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+    }
+    
+    const storedQrDataStr = localStorage.getItem('loyaltyQrCode');
+    
+    if (!storedQrDataStr) {
+      toast({
+        variant: "destructive",
+        title: "Code QR invalide",
+        description: "Aucun QR code valide n'est configuré par le restaurateur."
+      });
+      setIsLoading(false);
+      return;
+    }
+    
+    const storedQrData = JSON.parse(storedQrDataStr);
+    
+    if (scannedData === storedQrData.value && storedQrData.expires > Date.now()) {
+      const user = sessionStorage.getItem('loggedInUser');
+      if (user) {
+          const parsedUser = JSON.parse(user);
+          let newStampCount = (parseInt(localStorage.getItem(`stamps_${parsedUser.phone}`) || '0', 10)) + 1;
+          localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
+          logStampActivity(parsedUser.phone);
+      }
+      
+      const confirmationText = "Tampon validé !";
+      toast({
+          title: confirmationText,
+          description: "Vous avez bien reçu votre tampon de fidélité."
+      });
+
+      try {
+        const audioResponse = await textToSpeech(confirmationText);
+        const audio = new Audio(audioResponse.media);
+        audio.play();
+      } catch (e) {
+        console.error("Erreur lors de la génération de la synthèse vocale", e);
+      }
+      
+      // Dispatch storage event so other components can update
+      window.dispatchEvent(new Event('storage'));
+
+      setTimeout(() => {
+        router.push('/customer');
+      }, 1500);
+
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Code QR invalide ou expiré",
+            description: "Veuillez scanner un code valide fourni par le restaurateur."
+        });
+         setTimeout(() => {
+             setIsLoading(false);
+         }, 2000);
+    }
+  }, [router, toast]);
+
   const scanQrCode = useCallback(() => {
     if (isLoading || !isScanning) return;
     
@@ -46,12 +109,13 @@ export default function ScannerPage() {
       }
     }
     animationFrameId.current = requestAnimationFrame(scanQrCode);
-  }, [isLoading, isScanning]);
+  }, [isLoading, isScanning, handleValidation]);
 
 
   useEffect(() => {
     let stream: MediaStream | null = null;
     const enableCamera = async () => {
+      if (!isScanning) return;
       setIsLoading(true);
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -76,13 +140,7 @@ export default function ScannerPage() {
       }
     };
 
-    if (isScanning) {
-      enableCamera();
-    } else {
-       if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
-    }
+    enableCamera();
 
     return () => {
       if (stream) {
@@ -98,66 +156,6 @@ export default function ScannerPage() {
     setIsScanning(true);
   };
   
-  const handleValidation = async (scannedData: string) => {
-    setIsLoading(true);
-    setIsScanning(false);
-
-    const storedQrDataStr = localStorage.getItem('loyaltyQrCode');
-    
-    if (!storedQrDataStr) {
-      toast({
-        variant: "destructive",
-        title: "Code QR invalide",
-        description: "Aucun QR code valide n'est configuré par le restaurateur."
-      });
-      setIsLoading(false);
-      return;
-    }
-    
-    const storedQrData = JSON.parse(storedQrDataStr);
-    
-    if (scannedData === storedQrData.value && storedQrData.expires > Date.now()) {
-      const user = sessionStorage.getItem('loggedInUser');
-      if (user) {
-          const parsedUser = JSON.parse(user);
-          let newStampCount = (parseInt(localStorage.getItem(`stamps_${parsedUser.phone}`) || '0', 10)) + 1;
-          localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
-          logStampActivity();
-      }
-      
-      const confirmationText = "Tampon validé !";
-      toast({
-          title: confirmationText,
-          description: "Vous avez bien reçu votre tampon de fidélité."
-      });
-
-      try {
-        const audioResponse = await textToSpeech(confirmationText);
-        const audio = new Audio(audioResponse.media);
-        audio.play();
-      } catch (e) {
-        console.error("Erreur lors de la génération de la synthèse vocale", e);
-      }
-
-      setTimeout(() => {
-        router.push('/customer');
-      }, 1500);
-
-    } else {
-        toast({
-            variant: "destructive",
-            title: "Code QR invalide ou expiré",
-            description: "Veuillez scanner un code valide fourni par le restaurateur."
-        });
-        // Allow scanning again
-         setTimeout(() => {
-             setIsLoading(false);
-             // Re-enable scanning if user wants to try again
-             // animationFrameId.current = requestAnimationFrame(scanQrCode);
-         }, 2000);
-    }
-  }
-
   const handleCancel = () => {
     setIsScanning(false);
     if (videoRef.current && videoRef.current.srcObject) {
@@ -182,7 +180,7 @@ export default function ScannerPage() {
                 <canvas ref={canvasRef} style={{ display: 'none' }} />
                 {(hasCameraPermission === false || isLoading) && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white p-4">
-                    {isLoading && <Loader2 className="h-12 w-12 mb-4 animate-spin" />}
+                    {isLoading && !hasCameraPermission && <Loader2 className="h-12 w-12 mb-4 animate-spin" />}
                     {hasCameraPermission === false && !isLoading && (
                         <>
                             <CameraOff className="h-12 w-12 mb-4" />
@@ -212,9 +210,6 @@ export default function ScannerPage() {
           ) : (
               <div className="w-full flex flex-col sm:flex-row gap-2">
                   <Button variant="outline" className="w-full" onClick={handleCancel}>Annuler</Button>
-                  <Button className="w-full" disabled>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Validation en cours..."}
-                  </Button>
               </div>
           )}
         </CardFooter>
