@@ -10,7 +10,11 @@ import { useEffect, useState } from "react";
 import type { Referral } from "@/lib/types";
 import { Alert, AlertDescription } from "../ui/alert";
 
-const REFERRAL_REWARD_POINTS = 2; // e.g., 2 bonus stamps
+const getPointsFromRewardString = (rewardString: string): number => {
+    const match = rewardString.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+};
+
 
 interface LoggedInUser {
     name: string;
@@ -25,6 +29,7 @@ export function ReferralCard() {
     const [enteredCode, setEnteredCode] = useState("");
     const [currentUser, setCurrentUser] = useState<LoggedInUser | null>(null);
     const [pendingReferralRewards, setPendingReferralRewards] = useState(0);
+    const [referralRewardDescription, setReferralRewardDescription] = useState("des points bonus");
     
     const fetchUserData = () => {
         const userStr = sessionStorage.getItem('loggedInUser');
@@ -37,6 +42,15 @@ export function ReferralCard() {
                 const rewardsKey = `pending_referral_rewards_${parsedUser.phone}`;
                 const pendingRewards = parseInt(localStorage.getItem(rewardsKey) || '0', 10);
                 setPendingReferralRewards(pendingRewards);
+
+                const referralSettingsStr = localStorage.getItem('referralSettings');
+                 if (referralSettingsStr) {
+                    const settings = JSON.parse(referralSettingsStr);
+                    // Assuming both referrer and referred get the same reward for simplicity now
+                    setReferralRewardDescription(settings.referrerReward || "des points bonus");
+                }
+
+
             } catch (error) {
                 console.error("Failed to parse user data from session storage", error);
                 setReferralCode('ERREUR');
@@ -47,7 +61,6 @@ export function ReferralCard() {
     };
 
     useEffect(() => {
-        // We need to make sure this runs only on the client
         fetchUserData();
     }, []);
 
@@ -89,7 +102,7 @@ export function ReferralCard() {
 
             toast({
                 title: "Code de parrainage validé !",
-                description: `Une récompense de parrainage est en attente pour vous et ${referrer.name} !`
+                description: `Une récompense est en attente pour vous et ${referrer.name} !`
             });
             
             fetchUserData();
@@ -108,7 +121,8 @@ export function ReferralCard() {
     const handleClaimReward = () => {
         if (!currentUser || pendingReferralRewards <= 0) return;
 
-        const totalStampsToAdd = pendingReferralRewards * REFERRAL_REWARD_POINTS;
+        const pointsPerReward = getPointsFromRewardString(referralRewardDescription);
+        const totalStampsToAdd = pendingReferralRewards * pointsPerReward;
 
         const stampsKey = `stamps_${currentUser.phone}`;
         const currentStamps = parseInt(localStorage.getItem(stampsKey) || '0', 10);
@@ -132,7 +146,7 @@ export function ReferralCard() {
             <Card>
                 <CardHeader>
                     <CardTitle>Parrainer un ami</CardTitle>
-                    <CardDescription>Partagez votre code et vous obtenez tous les deux des récompenses !</CardDescription>
+                    <CardDescription>Partagez votre code et obtenez tous les deux {referralRewardDescription} !</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {pendingReferralRewards > 0 && (
@@ -140,7 +154,7 @@ export function ReferralCard() {
                              <Gift className="h-4 w-4 !text-green-600" />
                             <AlertDescription className="flex justify-between items-center">
                                 <span>
-                                    Vous avez {pendingReferralRewards} récompense{pendingReferralRewards > 1 ? 's' : ''} de parrainage !
+                                    Vous avez {pendingReferralRewards} récompense{pendingReferralRewards > 1 ? 's' : ''} en attente !
                                 </span>
                                 <Button size="sm" variant="outline" onClick={handleClaimReward} className="bg-background/80 hover:bg-background">Récupérer</Button>
                             </AlertDescription>

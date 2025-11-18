@@ -11,8 +11,8 @@ import { useState, useEffect } from "react";
 
 export function ReferralSettings() {
     const { toast } = useToast();
-    const [referrerReward, setReferrerReward] = useState("5 points bonus");
-    const [referredReward, setReferredReward] = useState("5 points bonus");
+    const [referrerReward, setReferrerReward] = useState("2 tampons bonus");
+    const [referredReward, setReferredReward] = useState("2 tampons bonus");
     const [isEnabled, setIsEnabled] = useState(true);
 
     useEffect(() => {
@@ -65,7 +65,7 @@ export function ReferralSettings() {
                 <Input 
                     id="referrer-reward" 
                     type="text" 
-                    placeholder="Ex: Un café offert" 
+                    placeholder="Ex: 2 tampons bonus" 
                     value={referrerReward}
                     onChange={(e) => setReferrerReward(e.target.value)}
                 />
@@ -75,7 +75,7 @@ export function ReferralSettings() {
                 <Input 
                     id="referred-reward" 
                     type="text" 
-                    placeholder="Ex: -10% sur la première commande" 
+                    placeholder="Ex: 2 tampons bonus" 
                     value={referredReward}
                     onChange={(e) => setReferredReward(e.target.value)}
                 />
