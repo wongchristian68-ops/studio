@@ -5,13 +5,12 @@
  * 
  * - generateReviewResponse - The main function to call the flow.
  * - GenerateReviewResponseInput - The Zod schema for the input.
- * - GenerateReviewResponseOutput - The Zod schema for the output.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
-export const GenerateReviewResponseInputSchema = z.object({
+const GenerateReviewResponseInputSchema = z.object({
   customerName: z.string().describe("The name of the customer who left the review."),
   rating: z.number().min(1).max(5).describe("The star rating given by the customer (1-5)."),
   comment: z.string().describe("The text content of the customer's review."),
