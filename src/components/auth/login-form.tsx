@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -20,11 +21,13 @@ export function LoginForm() {
     const formData = new FormData(e.currentTarget);
     const phone = formData.get("phone") as string;
     
-    // Simulate checking if user exists in localStorage
     const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
     const foundUser = existingUsers.find((user: any) => user.phone === phone && user.role === role);
 
     if (foundUser) {
+      // Store user in session storage to be accessed by other pages
+      sessionStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+
       toast({
         title: "Connexion réussie !",
         description: "Vous allez être redirigé.",

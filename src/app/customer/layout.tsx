@@ -1,4 +1,6 @@
 
+'use client';
+
 import Link from 'next/link';
 import { UtensilsCrossed, User, Gift, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,8 +12,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 function CustomerHeader() {
+  const [userName, setUserName] = useState('Mon Compte');
+  const router = useRouter();
+
+  useEffect(() => {
+    const user = sessionStorage.getItem('loggedInUser');
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      setUserName(parsedUser.name);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('loggedInUser');
+    router.push('/');
+  }
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
@@ -48,13 +68,13 @@ function CustomerHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Jane Doe</DropdownMenuLabel>
+              <DropdownMenuLabel>{userName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem><User className="mr-2 h-4 w-4" />Profil</DropdownMenuItem>
               <DropdownMenuItem><Gift className="mr-2 h-4 w-4" />Mes récompenses</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/"><LogOut className="mr-2 h-4 w-4" />Déconnexion</Link>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />Déconnexion
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
