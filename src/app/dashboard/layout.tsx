@@ -99,8 +99,8 @@ export default function DashboardLayout({
           <SidebarFooter>
              <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Paramètres">
-                  <Link href="#">
+                <SidebarMenuButton asChild tooltip="Paramètres" isActive={pathname === '/dashboard/settings'}>
+                  <Link href="/dashboard/settings">
                     <Settings />
                     <span>Paramètres</span>
                   </Link>
