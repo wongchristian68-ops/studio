@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -37,12 +36,12 @@ export function ReferralSettings() {
                 <Switch defaultChecked />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="referrer-reward">Récompense du parrain (en points)</Label>
-                <Input id="referrer-reward" type="number" defaultValue="5" />
+                <Label htmlFor="referrer-reward">Récompense du parrain</Label>
+                <Input id="referrer-reward" type="text" placeholder="Ex: Un café offert" defaultValue="5 points bonus" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="referred-reward">Récompense du filleul (en points)</Label>
-                <Input id="referred-reward" type="number" defaultValue="5" />
+                <Label htmlFor="referred-reward">Récompense du filleul</Label>
+                <Input id="referred-reward" type="text" placeholder="Ex: -10% sur la première commande" defaultValue="5 points bonus" />
             </div>
         </CardContent>
         <CardFooter>
