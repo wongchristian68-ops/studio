@@ -12,24 +12,34 @@ import { Alert, AlertDescription } from "../ui/alert";
 
 const REFERRAL_REWARD_POINTS = 2; // e.g., 2 bonus stamps
 
+interface LoggedInUser {
+    name: string;
+    phone: string;
+    role: string;
+    referralCode?: string;
+}
+
 export function ReferralCard() {
     const { toast } = useToast();
-    const [referralCode, setReferralCode] = useState("");
+    const [referralCode, setReferralCode] = useState<string | null>(null);
     const [enteredCode, setEnteredCode] = useState("");
-    const [currentUser, setCurrentUser] = useState<any>(null);
+    const [currentUser, setCurrentUser] = useState<LoggedInUser | null>(null);
     const [pendingReferralRewards, setPendingReferralRewards] = useState(0);
     
     const fetchUserData = () => {
         const userStr = sessionStorage.getItem('loggedInUser');
         if (userStr) {
-            const parsedUser = JSON.parse(userStr);
-            setCurrentUser(parsedUser);
-            if (parsedUser.referralCode) {
-                setReferralCode(parsedUser.referralCode);
+            try {
+                const parsedUser: LoggedInUser = JSON.parse(userStr);
+                setCurrentUser(parsedUser);
+                setReferralCode(parsedUser.referralCode || null);
+
+                const rewardsKey = `pending_referral_rewards_${parsedUser.phone}`;
+                const pendingRewards = parseInt(localStorage.getItem(rewardsKey) || '0', 10);
+                setPendingReferralRewards(pendingRewards);
+            } catch (error) {
+                console.error("Failed to parse user data from session storage", error);
             }
-            const rewardsKey = `pending_referral_rewards_${parsedUser.phone}`;
-            const pendingRewards = parseInt(localStorage.getItem(rewardsKey) || '0', 10);
-            setPendingReferralRewards(pendingRewards);
         }
     };
 
@@ -54,17 +64,14 @@ export function ReferralCard() {
         const referrer = allUsers.find((user: any) => user.referralCode === enteredCode.trim() && user.phone !== currentUser.phone);
 
         if (referrer) {
-            // Give reward to the referred (current user) by adding to their pending rewards
             const referredRewardsKey = `pending_referral_rewards_${currentUser.phone}`;
             const currentReferredRewards = parseInt(localStorage.getItem(referredRewardsKey) || '0', 10);
             localStorage.setItem(referredRewardsKey, (currentReferredRewards + 1).toString());
             
-            // Give reward to the referrer by adding to their pending rewards
             const referrerRewardsKey = `pending_referral_rewards_${referrer.phone}`;
             const currentReferrerRewards = parseInt(localStorage.getItem(referrerRewardsKey) || '0', 10);
             localStorage.setItem(referrerRewardsKey, (currentReferrerRewards + 1).toString());
             
-            // Log the referral activity
             const referralActivity: Referral[] = JSON.parse(localStorage.getItem('referralActivity') || '[]');
             const newReferral: Referral = {
                 id: `ref-${Date.now()}`,
@@ -81,7 +88,6 @@ export function ReferralCard() {
                 description: `Une récompense de parrainage est en attente pour vous et ${referrer.name} !`
             });
             
-            // Update UI
             fetchUserData();
             setEnteredCode("");
             window.dispatchEvent(new Event('storage'));
@@ -114,7 +120,6 @@ export function ReferralCard() {
             description: `Vous avez reçu ${totalStampsToAdd} tampons bonus.`
         });
         
-        // Dispatch a storage event to notify other components (like loyalty status)
         window.dispatchEvent(new Event('storage'));
     };
 
@@ -159,7 +164,7 @@ export function ReferralCard() {
                             value={enteredCode}
                             onChange={(e) => setEnteredCode(e.target.value.toUpperCase())}
                         />
-                        <Button type="submit">Valider</Button>
+                        <Button type="submit" disabled={!enteredCode}>Valider</Button>
                     </form>
                 </CardContent>
             </Card>
