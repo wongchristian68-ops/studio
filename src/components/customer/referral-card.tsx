@@ -21,7 +21,7 @@ interface LoggedInUser {
 
 export function ReferralCard() {
     const { toast } = useToast();
-    const [referralCode, setReferralCode] = useState<string | null>(null);
+    const [referralCode, setReferralCode] = useState<string>('...');
     const [enteredCode, setEnteredCode] = useState("");
     const [currentUser, setCurrentUser] = useState<LoggedInUser | null>(null);
     const [pendingReferralRewards, setPendingReferralRewards] = useState(0);
@@ -32,23 +32,27 @@ export function ReferralCard() {
             try {
                 const parsedUser: LoggedInUser = JSON.parse(userStr);
                 setCurrentUser(parsedUser);
-                setReferralCode(parsedUser.referralCode || null);
+                setReferralCode(parsedUser.referralCode || 'N/A');
 
                 const rewardsKey = `pending_referral_rewards_${parsedUser.phone}`;
                 const pendingRewards = parseInt(localStorage.getItem(rewardsKey) || '0', 10);
                 setPendingReferralRewards(pendingRewards);
             } catch (error) {
                 console.error("Failed to parse user data from session storage", error);
+                setReferralCode('ERREUR');
             }
+        } else {
+            setReferralCode('Non trouvé');
         }
     };
 
     useEffect(() => {
+        // We need to make sure this runs only on the client
         fetchUserData();
     }, []);
 
     const copyToClipboard = () => {
-        if(!referralCode) return;
+        if(!referralCode || referralCode === '...' || referralCode === 'N/A') return;
         navigator.clipboard.writeText(referralCode);
         toast({
             title: "Copié dans le presse-papiers !",
@@ -144,9 +148,9 @@ export function ReferralCard() {
                     )}
                     <div className="flex items-center space-x-2">
                          <div className="flex-grow p-2 border rounded-md bg-muted text-center font-mono text-lg tracking-widest">
-                            {referralCode || '...'}
+                            {referralCode}
                         </div>
-                        <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copier le code de parrainage" disabled={!referralCode}>
+                        <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copier le code de parrainage" disabled={referralCode === '...'}>
                             <Copy className="h-4 w-4" />
                         </Button>
                     </div>
