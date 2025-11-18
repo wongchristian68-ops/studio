@@ -3,8 +3,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { OAuthButtons } from "./oauth-buttons";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { OAuthButtons } from "./oauth-buttons";
 
 export function SignUpForm() {
   return (
@@ -19,16 +19,12 @@ export function SignUpForm() {
           <Input id="name" type="text" placeholder="John Doe" required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Mot de passe</Label>
-          <Input id="password" type="password" required />
+          <Label htmlFor="phone">Numéro de téléphone</Label>
+          <Input id="phone" type="tel" placeholder="+33 6 12 34 56 78" required />
         </div>
         <div className="space-y-2">
           <Label htmlFor="role">Je suis un...</Label>
-          <Select>
+          <Select name="role">
             <SelectTrigger id="role">
               <SelectValue placeholder="Sélectionnez votre rôle" />
             </SelectTrigger>

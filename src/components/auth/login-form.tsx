@@ -4,27 +4,31 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { OAuthButtons } from "./oauth-buttons";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function LoginForm() {
   return (
     <Card>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-headline">Content de vous revoir</CardTitle>
-        <CardDescription>Connectez-vous pour accéder à votre tableau de bord</CardDescription>
+        <CardDescription>Connectez-vous pour accéder à votre espace</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Label htmlFor="phone">Numéro de téléphone</Label>
+          <Input id="phone" type="tel" placeholder="+33 6 12 34 56 78" required />
         </div>
         <div className="space-y-2">
-          <div className="flex items-center">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Link href="#" className="ml-auto inline-block text-sm underline">
-              Mot de passe oublié ?
-            </Link>
-          </div>
-          <Input id="password" type="password" required />
+          <Label htmlFor="role">Je me connecte en tant que...</Label>
+           <Select name="role" defaultValue="customer">
+            <SelectTrigger id="role">
+              <SelectValue placeholder="Sélectionnez votre rôle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="customer">Client</SelectItem>
+              <SelectItem value="restaurateur">Restaurateur</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button type="submit" className="w-full" asChild>
           <Link href="/dashboard">Se connecter</Link>
