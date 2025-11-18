@@ -48,7 +48,7 @@ const generateReviewResponseFlow = ai.defineFlow(
 
     const llmResponse = await ai.generate({
       prompt: prompt,
-      model: 'googleai/gemini-1.5-flash',
+      model: 'gemini-1.5-flash',
       config: {
         maxOutputTokens: 200,
       },
