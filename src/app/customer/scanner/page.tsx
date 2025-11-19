@@ -51,15 +51,39 @@ export default function ScannerPage() {
     }
     
     const storedQrData = JSON.parse(storedQrDataStr);
+    const userStr = sessionStorage.getItem('loggedInUser');
     
+    if (!userStr) {
+        toast({ variant: "destructive", title: "Erreur", description: "Utilisateur non connecté." });
+        setIsLoading(false);
+        return;
+    }
+    const parsedUser = JSON.parse(userStr);
+
     if (scannedData === storedQrData.value && storedQrData.expires > Date.now()) {
-      const user = sessionStorage.getItem('loggedInUser');
-      if (user) {
-          const parsedUser = JSON.parse(user);
-          let newStampCount = (parseInt(localStorage.getItem(`stamps_${parsedUser.phone}`) || '0', 10)) + 1;
-          localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
-          logStampActivity(parsedUser.phone);
+      // Check if user has already scanned this specific QR code
+      const scannedCodesLog: Record<string, string[]> = JSON.parse(localStorage.getItem('scannedQrCodes') || '{}');
+      const usersWhoScannedThisCode = scannedCodesLog[scannedData] || [];
+
+      if (usersWhoScannedThisCode.includes(parsedUser.phone)) {
+        toast({
+            variant: "destructive",
+            title: "Code QR déjà utilisé",
+            description: "Vous avez déjà validé un tampon avec ce QR code."
+        });
+        setIsLoading(false);
+        return;
       }
+
+      // Add user to the log for this QR code
+      usersWhoScannedThisCode.push(parsedUser.phone);
+      scannedCodesLog[scannedData] = usersWhoScannedThisCode;
+      localStorage.setItem('scannedQrCodes', JSON.stringify(scannedCodesLog));
+
+      // Add stamp to user
+      let newStampCount = (parseInt(localStorage.getItem(`stamps_${parsedUser.phone}`) || '0', 10)) + 1;
+      localStorage.setItem(`stamps_${parsedUser.phone}`, newStampCount.toString());
+      logStampActivity(parsedUser.phone);
       
       const confirmationText = "Tampon validé !";
       toast({
@@ -92,7 +116,7 @@ export default function ScannerPage() {
   }, [router, toast, stopScanning]);
 
   const scanQrCode = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current || !isScanning) return;
     
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -109,46 +133,46 @@ export default function ScannerPage() {
 
         if (code && code.data) {
           handleValidation(code.data);
-          return;
+          return; // Stop scanning once a code is found and handled
         }
     }
     
-    if (isScanning) {
-        animationFrameId.current = requestAnimationFrame(scanQrCode);
-    }
+    animationFrameId.current = requestAnimationFrame(scanQrCode);
   }, [isScanning, handleValidation]);
 
-  useEffect(() => {
-    let stream: MediaStream | null = null;
-  
+   useEffect(() => {
+    let stream: MediaStream;
+
     const startCamera = async () => {
-      if (isScanning && !stream) {
+      if (isScanning && hasCameraPermission !== false) {
         setIsLoading(true);
-        setHasCameraPermission(null);
         try {
           stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
-            videoRef.current.play().catch(e => console.error("Video play failed:", e));
-            setHasCameraPermission(true);
-            animationFrameId.current = requestAnimationFrame(scanQrCode);
+            // Wait for video to start playing to get correct dimensions
+            videoRef.current.onloadedmetadata = () => {
+              videoRef.current?.play().catch(e => console.error("Video play failed:", e));
+              setHasCameraPermission(true);
+              setIsLoading(false);
+              animationFrameId.current = requestAnimationFrame(scanQrCode);
+            };
           }
         } catch (error) {
           console.error("Error accessing camera:", error);
           setHasCameraPermission(false);
+          setIsLoading(false);
           toast({
             variant: "destructive",
             title: "Accès à la caméra refusé",
             description: "Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.",
           });
-        } finally {
-          setIsLoading(false);
         }
       }
     };
-  
+
     startCamera();
-  
+
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -157,7 +181,7 @@ export default function ScannerPage() {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [isScanning, scanQrCode, toast]);
+  }, [isScanning, scanQrCode, toast, hasCameraPermission]);
   
 
   const handleScanClick = () => {
