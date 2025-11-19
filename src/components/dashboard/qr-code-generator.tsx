@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 import QRCode from "react-qr-code";
+import { Loader2 } from 'lucide-react';
 
 // Simple pseudo-random string generator
 const generateRandomString = (length: number) => {
@@ -17,22 +18,26 @@ const generateRandomString = (length: number) => {
   return result;
 };
 
+const CODE_LIFETIME_SECONDS = 60; // 60 seconds
 
 export function QrCodeGenerator() {
   const [qrData, setQrData] = useState<{ value: string; expires: number } | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
   const generateNewCode = () => {
+    setIsGenerating(true);
     const value = generateRandomString(20);
-    const expires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    const expires = Date.now() + CODE_LIFETIME_SECONDS * 1000;
     const newQrData = { value, expires };
     setQrData(newQrData);
     localStorage.setItem('loyaltyQrCode', JSON.stringify(newQrData));
     toast({
       title: 'Nouveau QR Code généré !',
-      description: 'Ce code est valable 24 heures.',
+      description: `Ce code est valable ${CODE_LIFETIME_SECONDS} secondes.`,
     });
+    setIsGenerating(false);
   };
 
   useEffect(() => {
@@ -48,6 +53,9 @@ export function QrCodeGenerator() {
   useEffect(() => {
     if (!qrData || qrData.expires <= Date.now()) {
       setTimeLeft(0);
+      if(qrData) { // If there was a code, but it expired, clear it
+        setQrData(null);
+      }
       return;
     }
 
@@ -66,10 +74,9 @@ export function QrCodeGenerator() {
   const formatTime = (ms: number) => {
     if (ms <= 0) return 'Expiré';
     const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const isExpired = !qrData || timeLeft <= 0;
@@ -79,7 +86,7 @@ export function QrCodeGenerator() {
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-headline">Générateur de QR Code</CardTitle>
         <CardDescription>
-          Générez un QR code unique pour permettre à vos clients de valider leurs tampons. Chaque code est valable 24 heures.
+          Générez un QR code unique pour permettre à vos clients de valider leurs tampons. Chaque code est valable {CODE_LIFETIME_SECONDS} secondes.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4">
@@ -93,20 +100,22 @@ export function QrCodeGenerator() {
             />
           ) : (
             <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground rounded-md">
-              <p>Aucun code actif</p>
+              <p>{isExpired ? 'Code expiré' : 'Aucun code actif'}</p>
             </div>
           )}
         </div>
-        {qrData && !isExpired && (
+        {!isExpired && (
             <div className="text-center">
                 <p className="font-semibold">Temps restant :</p>
-                <p className="text-2xl font-mono text-primary">{formatTime(timeLeft)}</p>
+                <p className="text-2xl font-mono text-primary tabular-nums w-24">
+                  {formatTime(timeLeft)}
+                </p>
             </div>
         )}
       </CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={generateNewCode}>
-          {isExpired ? 'Générer un nouveau QR Code' : 'Générer un autre QR Code'}
+        <Button className="w-full" onClick={generateNewCode} disabled={isGenerating}>
+          {isGenerating ? <Loader2 className="animate-spin" /> : (isExpired ? 'Générer un nouveau QR Code' : 'Générer un autre QR Code')}
         </Button>
       </CardFooter>
     </Card>

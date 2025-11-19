@@ -22,12 +22,20 @@ export default function ScannerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const animationFrameId = useRef<number>();
 
-  const handleValidation = useCallback(async (scannedData: string) => {
-    setIsLoading(true);
-    setIsScanning(false);
+  const stopScanning = useCallback(() => {
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
     }
+    if (videoRef.current && videoRef.current.srcObject) {
+      (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsScanning(false);
+  }, []);
+
+  const handleValidation = useCallback(async (scannedData: string) => {
+    setIsLoading(true);
+    stopScanning(); // Stop camera and animation frame
     
     const storedQrDataStr = localStorage.getItem('loyaltyQrCode');
     
@@ -66,7 +74,6 @@ export default function ScannerPage() {
         console.error("Erreur lors de la génération de la synthèse vocale", e);
       }
       
-      // Dispatch storage event so other components can update
       window.dispatchEvent(new Event('storage'));
 
       setTimeout(() => {
@@ -79,11 +86,10 @@ export default function ScannerPage() {
             title: "Code QR invalide ou expiré",
             description: "Veuillez scanner un code valide fourni par le restaurateur."
         });
-         setTimeout(() => {
-             setIsLoading(false);
-         }, 2000);
+        setIsLoading(false);
+        // Allow user to try scanning again without reloading
     }
-  }, [router, toast]);
+  }, [router, toast, stopScanning]);
 
   const scanQrCode = useCallback(() => {
     if (isLoading || !isScanning) return;
@@ -91,7 +97,7 @@ export default function ScannerPage() {
     if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
+      const context = canvas.getContext("2d", { willReadFrequently: true });
 
       if (context) {
         canvas.height = video.videoHeight;
@@ -104,7 +110,7 @@ export default function ScannerPage() {
 
         if (code) {
           handleValidation(code.data);
-          return; // Stop scanning once a code is found
+          return; 
         }
       }
     }
@@ -113,9 +119,14 @@ export default function ScannerPage() {
 
 
   useEffect(() => {
-    let stream: MediaStream | null = null;
+    if (!isScanning) {
+      stopScanning();
+      return;
+    }
+
+    let stream: MediaStream;
+
     const enableCamera = async () => {
-      if (!isScanning) return;
       setIsLoading(true);
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -123,13 +134,13 @@ export default function ScannerPage() {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.onloadedmetadata = () => {
-             animationFrameId.current = requestAnimationFrame(scanQrCode);
+            animationFrameId.current = requestAnimationFrame(scanQrCode);
           };
         }
       } catch (error) {
         console.error("Error accessing camera:", error);
         setHasCameraPermission(false);
-        setIsScanning(false);
+        stopScanning(); // Stop everything if permission is denied
         toast({
           variant: "destructive",
           title: "Accès à la caméra refusé",
@@ -143,14 +154,9 @@ export default function ScannerPage() {
     enableCamera();
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
+      stopScanning();
     };
-  }, [isScanning, toast, scanQrCode]);
+  }, [isScanning, scanQrCode, stopScanning, toast]);
 
   const handleScanClick = () => {
     setIsScanning(true);
@@ -158,11 +164,7 @@ export default function ScannerPage() {
   
   const handleCancel = () => {
     setIsScanning(false);
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
+    setIsLoading(false);
   }
 
   return (
@@ -173,43 +175,44 @@ export default function ScannerPage() {
           <CardDescription>Scannez le QR code affiché par votre restaurateur pour recevoir un tampon.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="aspect-square w-full bg-muted rounded-md flex items-center justify-center overflow-hidden">
-            {isScanning ? (
-              <div className="relative w-full h-full">
-                <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-                <canvas ref={canvasRef} style={{ display: 'none' }} />
-                {(hasCameraPermission === false || isLoading) && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white p-4">
-                    {isLoading && !hasCameraPermission && <Loader2 className="h-12 w-12 mb-4 animate-spin" />}
-                    {hasCameraPermission === false && !isLoading && (
-                        <>
-                            <CameraOff className="h-12 w-12 mb-4" />
-                            <Alert variant="destructive">
-                                <AlertTitle>Accès Caméra Requis</AlertTitle>
-                                <AlertDescription>
-                                  Veuillez autoriser l'accès à la caméra pour utiliser cette fonctionnalité.
-                                </AlertDescription>
-                            </Alert>
-                        </>
-                    )}
-                  </div>
-                )}
-                 <div className="absolute inset-2 border-2 border-dashed border-primary rounded-lg opacity-75"></div>
-              </div>
-            ) : (
+          <div className="aspect-square w-full bg-muted rounded-md flex items-center justify-center overflow-hidden relative">
+            {!isScanning && !isLoading && (
               <QrCode className="h-24 w-24 text-muted-foreground" />
             )}
+             {(isScanning || isLoading) && (
+                 <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline hidden={hasCameraPermission === false || isLoading}/>
+             )}
+             <canvas ref={canvasRef} style={{ display: 'none' }} />
+            
+            {(isLoading || hasCameraPermission === false) && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 text-white p-4 text-center">
+                {isLoading && <Loader2 className="h-12 w-12 mb-4 animate-spin" />}
+                {hasCameraPermission === false && (
+                    <>
+                        <CameraOff className="h-12 w-12 mb-4" />
+                        <Alert variant="destructive" className="bg-transparent border-red-500/50 text-white">
+                            <AlertTitle>Accès Caméra Requis</AlertTitle>
+                            <AlertDescription>
+                              Veuillez autoriser l'accès à la caméra pour scanner.
+                            </AlertDescription>
+                        </Alert>
+                    </>
+                )}
+              </div>
+            )}
+             {isScanning && hasCameraPermission && !isLoading && (
+                <div className="absolute inset-2 border-2 border-dashed border-primary rounded-lg opacity-75"></div>
+             )}
           </div>
         </CardContent>
         <CardFooter>
           {!isScanning ? (
               <Button className="w-full" onClick={handleScanClick} disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Scanner le QR Code
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Scanner le QR Code"}
               </Button>
           ) : (
               <div className="w-full flex flex-col sm:flex-row gap-2">
-                  <Button variant="outline" className="w-full" onClick={handleCancel}>Annuler</Button>
+                  <Button variant="outline" className="w-full" onClick={handleCancel} disabled={isLoading}>Annuler</Button>
               </div>
           )}
         </CardFooter>
