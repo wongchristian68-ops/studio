@@ -25,6 +25,7 @@ export default function ScannerPage() {
   const stopScanning = useCallback(() => {
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
+      animationFrameId.current = undefined;
     }
     if (videoRef.current && videoRef.current.srcObject) {
       (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
@@ -87,19 +88,17 @@ export default function ScannerPage() {
             description: "Veuillez scanner un code valide fourni par le restaurateur."
         });
         setIsLoading(false);
-        // Allow user to try scanning again without reloading
     }
   }, [router, toast, stopScanning]);
 
   const scanQrCode = useCallback(() => {
-    if (isLoading || !isScanning) return;
+    if (!videoRef.current || !canvasRef.current) return;
     
-    if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d", { willReadFrequently: true });
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
 
-      if (context) {
+    if (context && video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.height = video.videoHeight;
         canvas.width = video.videoWidth;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -108,62 +107,65 @@ export default function ScannerPage() {
           inversionAttempts: "dontInvert",
         });
 
-        if (code) {
+        if (code && code.data) {
           handleValidation(code.data);
-          return; 
+          return;
         }
-      }
     }
-    animationFrameId.current = requestAnimationFrame(scanQrCode);
-  }, [isLoading, isScanning, handleValidation]);
-
+    
+    if (isScanning) {
+        animationFrameId.current = requestAnimationFrame(scanQrCode);
+    }
+  }, [isScanning, handleValidation]);
 
   useEffect(() => {
-    if (!isScanning) {
-      stopScanning();
-      return;
-    }
-
-    let stream: MediaStream;
-
-    const enableCamera = async () => {
-      setIsLoading(true);
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.onloadedmetadata = () => {
+    let stream: MediaStream | null = null;
+  
+    const startCamera = async () => {
+      if (isScanning && !stream) {
+        setIsLoading(true);
+        setHasCameraPermission(null);
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play().catch(e => console.error("Video play failed:", e));
+            setHasCameraPermission(true);
             animationFrameId.current = requestAnimationFrame(scanQrCode);
-          };
+          }
+        } catch (error) {
+          console.error("Error accessing camera:", error);
+          setHasCameraPermission(false);
+          toast({
+            variant: "destructive",
+            title: "Accès à la caméra refusé",
+            description: "Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.",
+          });
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error("Error accessing camera:", error);
-        setHasCameraPermission(false);
-        stopScanning(); // Stop everything if permission is denied
-        toast({
-          variant: "destructive",
-          title: "Accès à la caméra refusé",
-          description: "Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.",
-        });
-      } finally {
-        setIsLoading(false);
       }
     };
-
-    enableCamera();
-
+  
+    startCamera();
+  
     return () => {
-      stopScanning();
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
     };
-  }, [isScanning, scanQrCode, stopScanning, toast]);
+  }, [isScanning, scanQrCode, toast]);
+  
 
   const handleScanClick = () => {
     setIsScanning(true);
   };
   
   const handleCancel = () => {
-    setIsScanning(false);
+    stopScanning();
     setIsLoading(false);
   }
 
@@ -180,7 +182,7 @@ export default function ScannerPage() {
               <QrCode className="h-24 w-24 text-muted-foreground" />
             )}
              {(isScanning || isLoading) && (
-                 <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline hidden={hasCameraPermission === false || isLoading}/>
+                 <video ref={videoRef} className="w-full h-full object-cover" playsInline hidden={hasCameraPermission === false || isLoading}/>
              )}
              <canvas ref={canvasRef} style={{ display: 'none' }} />
             
