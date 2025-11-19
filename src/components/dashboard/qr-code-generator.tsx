@@ -18,7 +18,7 @@ const generateRandomString = (length: number) => {
   return result;
 };
 
-const CODE_LIFETIME_SECONDS = 60; // 60 seconds
+const CODE_LIFETIME_SECONDS = 24 * 60 * 60; // 24 hours
 
 export function QrCodeGenerator() {
   const [qrData, setQrData] = useState<{ value: string; expires: number } | null>(null);
@@ -35,7 +35,7 @@ export function QrCodeGenerator() {
     localStorage.setItem('loyaltyQrCode', JSON.stringify(newQrData));
     toast({
       title: 'Nouveau QR Code généré !',
-      description: `Ce code est valable ${CODE_LIFETIME_SECONDS} secondes.`,
+      description: `Ce code est valable 24 heures.`,
     });
     setIsGenerating(false);
   };
@@ -74,9 +74,10 @@ export function QrCodeGenerator() {
   const formatTime = (ms: number) => {
     if (ms <= 0) return 'Expiré';
     const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const isExpired = !qrData || timeLeft <= 0;
@@ -86,7 +87,7 @@ export function QrCodeGenerator() {
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-headline">Générateur de QR Code</CardTitle>
         <CardDescription>
-          Générez un QR code unique pour permettre à vos clients de valider leurs tampons. Chaque code est valable {CODE_LIFETIME_SECONDS} secondes.
+          Générez un QR code unique pour permettre à vos clients de valider leurs tampons. Chaque code est valable 24 heures.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4">
@@ -107,7 +108,7 @@ export function QrCodeGenerator() {
         {!isExpired && (
             <div className="text-center">
                 <p className="font-semibold">Temps restant :</p>
-                <p className="text-2xl font-mono text-primary tabular-nums w-24">
+                <p className="text-2xl font-mono text-primary tabular-nums w-36">
                   {formatTime(timeLeft)}
                 </p>
             </div>
