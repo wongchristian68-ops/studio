@@ -1,8 +1,26 @@
+
+'use client';
+
 import { OverviewStats } from "@/components/dashboard/overview-stats";
 import { EngagementChart } from "@/components/dashboard/engagement-chart";
 import { RecentReviews } from "@/components/dashboard/recent-reviews";
+import { getLoggedInUser } from "@/lib/data-access";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const users = getLoggedInUser();
+    const restaurateur = users?.find(u => u.role === 'restaurateur');
+    if (!restaurateur) {
+      router.push('/login');
+    }
+  }, [router]);
+
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
