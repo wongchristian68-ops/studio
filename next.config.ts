@@ -30,6 +30,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer, dev }) => {
+    if (!isServer && !dev) {
+      const workboxWebpackPlugin = require('workbox-webpack-plugin');
+      config.plugins.push(
+        new workboxWebpackPlugin.InjectManifest({
+          swSrc: 'src/lib/sw.ts',
+          swDest: '../public/sw.js',
+          // Other configurations if needed
+        })
+      );
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

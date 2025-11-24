@@ -13,42 +13,49 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getLoggedInUser } from '@/lib/data-access';
 
 function CustomerHeader() {
   const [userName, setUserName] = useState('Mon Compte');
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const user = sessionStorage.getItem('loggedInUser');
-    if (user) {
-      const parsedUser = JSON.parse(user);
-      setUserName(parsedUser.name);
+    const users = getLoggedInUser();
+    if (users && users.length > 0) {
+      setUserName(users[0].name);
     }
-  }, []);
+    const currentRestaurantId = searchParams.get('restaurantId');
+    if (currentRestaurantId) {
+      setRestaurantId(currentRestaurantId);
+    }
+  }, [searchParams]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('loggedInUser');
     router.push('/');
   }
 
+  const getUrl = (path: string) => {
+    return restaurantId ? `${path}?restaurantId=${restaurantId}` : path;
+  }
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <div className="flex gap-6 md:gap-10">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/customer/select-restaurant" className="flex items-center space-x-2">
             <UtensilsCrossed className="h-6 w-6 text-primary" />
             <span className="inline-block font-bold">RestoConnect</span>
           </Link>
           <nav className="hidden gap-6 md:flex">
-            <Link href="/customer" className="text-sm font-medium text-foreground hover:text-primary">
+            <Link href={getUrl("/customer")} className="text-sm font-medium text-foreground hover:text-primary">
               Mes Points
             </Link>
-            <Link href="/customer/scanner" className="text-sm font-medium text-muted-foreground hover:text-primary">
+            <Link href={getUrl("/customer/scanner")} className="text-sm font-medium text-muted-foreground hover:text-primary">
               Scanner un code
-            </Link>
-            <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary">
-              Parrainer un ami
             </Link>
           </nav>
         </div>
@@ -70,10 +77,12 @@ function CustomerHeader() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{userName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem><User className="mr-2 h-4 w-4" />Profil</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={getUrl("/customer/profile")}><User className="mr-2 h-4 w-4" />Profil</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem><Gift className="mr-2 h-4 w-4" />Mes récompenses</DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/customer/scanner"><ScanLine className="mr-2 h-4 w-4" />Scanner un code</Link>
+                <Link href={getUrl("/customer/scanner")}><ScanLine className="mr-2 h-4 w-4" />Scanner un code</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
@@ -92,6 +101,15 @@ export default function CustomerLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+
+   useEffect(() => {
+    const users = getLoggedInUser();
+    if (!users || users.length === 0) {
+      router.push('/login');
+    }
+  }, [router]);
+
   return (
     <div className="min-h-screen bg-muted/40">
       <CustomerHeader />
