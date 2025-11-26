@@ -6,6 +6,7 @@ export type Review = {
   rating: number;
   comment: string;
   date: string;
+  aiResponse?: string;
 };
 
 export type EngagementData = {
