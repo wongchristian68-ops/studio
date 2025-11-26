@@ -36,7 +36,7 @@ const generateReviewResponseFlow = ai.defineFlow(
 
     const { text } = await ai.generate({
         prompt: prompt,
-        model: 'googleai/gemini-pro',
+        model: 'googleai/gemini-1.0-pro',
     });
 
     return text;
