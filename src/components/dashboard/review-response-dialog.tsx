@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -18,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Review } from '@/lib/types';
 import { generateReviewResponse } from '@/ai/flows/generate-review-response';
 import type { GenerateReviewResponseInput } from '@/ai/flows/types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 interface ReviewResponseDialogProps {
   review: Review | null;
@@ -32,51 +31,43 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    const handleGenerateResponse = async () => {
-      if (!review) return;
-
-      // If a response is already generated and stored, use it.
-      if (review.aiResponse) {
-        setResponse(review.aiResponse);
-        return;
-      }
-
-      // Otherwise, generate a new one.
-      setIsGenerating(true);
-      try {
-          const input: GenerateReviewResponseInput = {
-              customerName: review.customerName,
-              rating: review.rating,
-              comment: review.comment,
-          };
-          const generatedText = await generateReviewResponse(input);
-          setResponse(generatedText);
-          // Here you might want to update the source data `recentReviews`
-          // but for this simulation, we'll just set it in the state.
-          // In a real app, you'd have a function `updateReview(review.id, { aiResponse: generatedText })`
-          if(review) {
-            review.aiResponse = generatedText; // Mutating for demo purposes
-          }
-
-      } catch (error) {
-          console.error("Failed to generate AI response:", error);
-          toast({
-              variant: "destructive",
-              title: "Erreur de génération",
-              description: "Impossible de générer une réponse pour le moment.",
-          });
-      }
+    // Reset state when dialog is closed or review changes
+    if (!isOpen) {
+      setResponse('');
       setIsGenerating(false);
-    };
-
-    if (isOpen && review) {
-      handleGenerateResponse();
+    } else if (review?.aiResponse) {
+      setResponse(review.aiResponse);
     } else {
-      // Reset response when dialog is closed or no review
       setResponse('');
     }
-  }, [review, isOpen, toast]);
+  }, [review, isOpen]);
 
+  const handleGenerateResponse = async () => {
+    if (!review) return;
+
+    setIsGenerating(true);
+    try {
+      const input: GenerateReviewResponseInput = {
+        customerName: review.customerName,
+        rating: review.rating,
+        comment: review.comment,
+      };
+      const generatedText = await generateReviewResponse(input);
+      setResponse(generatedText);
+      // Store the generated response on the review object for this session
+      review.aiResponse = generatedText;
+
+    } catch (error) {
+      console.error("Failed to generate AI response:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur de génération",
+        description: "Impossible de générer une réponse pour le moment.",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleSendResponse = () => {
     toast({
@@ -94,7 +85,7 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
         <DialogHeader>
           <DialogTitle>Répondre à {review.customerName}</DialogTitle>
           <DialogDescription>
-            Voici l'avis du client. L'IA a généré une suggestion de réponse.
+            Rédigez votre réponse ou laissez l'IA en suggérer une.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -103,23 +94,28 @@ export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewRes
           </div>
           <div className="space-y-2">
             <Label htmlFor="response">Votre Réponse</Label>
-            {isGenerating ? (
-                <div className="flex items-center justify-center h-24 bg-muted rounded-md">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-            ) : (
-                <Textarea
-                  id="response"
-                  value={response}
-                  onChange={(e) => setResponse(e.target.value)}
-                  placeholder="Écrivez votre réponse ici..."
-                  rows={5}
-                />
-            )}
+             <Textarea
+              id="response"
+              value={response}
+              onChange={(e) => setResponse(e.target.value)}
+              placeholder="Écrivez votre réponse ici..."
+              rows={5}
+              disabled={isGenerating}
+            />
           </div>
         </div>
-        <DialogFooter>
-          <Button onClick={handleSendResponse} disabled={!response || isGenerating}>Envoyer la réponse</Button>
+        <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-between">
+           <Button variant="outline" onClick={handleGenerateResponse} disabled={isGenerating}>
+            {isGenerating ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="mr-2 h-4 w-4" />
+            )}
+            Générer avec l'IA
+          </Button>
+          <Button onClick={handleSendResponse} disabled={!response || isGenerating}>
+            Envoyer la réponse
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
