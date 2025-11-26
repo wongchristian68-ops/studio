@@ -26,14 +26,11 @@ interface ReviewResponseDialogProps {
 export function ReviewResponseDialog({ review, isOpen, onOpenChange }: ReviewResponseDialogProps) {
   const { toast } = useToast();
   const [response, setResponse] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-
+  
   useEffect(() => {
-    // When the dialog opens, if there's a review, set the response from the mock data.
     if (isOpen && review) {
       setResponse(review.aiResponse || '');
     } else if (!isOpen) {
-      // Reset when closed
       setResponse('');
     }
   }, [review, isOpen]);
