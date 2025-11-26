@@ -21,7 +21,7 @@ const generateReviewResponseFlow = ai.defineFlow(
   async (input) => {
     const prompt = `
       You are an AI assistant for a restaurant owner. Your task is to generate a professional and friendly response to a customer review.
-      The response should be in French.
+      The response should be in the same language as the customer's original comment.
 
       Customer Name: ${input.customerName}
       Rating: ${input.rating}/5
